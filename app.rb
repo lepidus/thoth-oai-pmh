@@ -28,3 +28,25 @@ get '/oai2.xsl' do
     "XSL stylesheet not found"
   end
 end
+
+not_found do
+  content_type 'text/html; charset=utf-8'
+
+  <<-HTML
+<!DOCTYPE html>
+<html>
+<head>
+  <title>404 - Page Not Found</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; text-align: center; }
+    h1 { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>404 - Page Not Found</h1>
+  <p>The requested page was not found.</p>
+  <p><a href="/oai">OAI-PMH Interface</a></p>
+</body>
+</html>
+  HTML
+end
