@@ -1,0 +1,20 @@
+cache:
+  paths:
+    - vendor/bundle
+
+before_script:
+  - bundle install --path vendor/bundle
+
+stages:
+  - lint
+  - test
+
+rubocop:
+  stage: lint
+  script:
+    - bundle exec rubocop
+
+test:
+  stage: test
+  script:
+    - bundle exec rake
