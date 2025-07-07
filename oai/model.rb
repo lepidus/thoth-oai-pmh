@@ -12,5 +12,9 @@ module ThothOAI
     def latest
       '2023-04-20T14:45:30Z'
     end
+
+    def find(_selector, _options = {})
+      []
+    end
   end
 end
