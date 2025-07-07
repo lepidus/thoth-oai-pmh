@@ -9,10 +9,10 @@ gem 'rexml'
 gem 'sinatra'
 gem 'sinatra-contrib'
 gem 'thin'
-gem 'test-unit'
 
 group :test do
   gem 'rack-test'
+  gem 'test-unit'
 end
 
 group :development do
