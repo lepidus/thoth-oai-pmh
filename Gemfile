@@ -1,11 +1,17 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 
-gem 'sinatra'
 gem 'oai'
-gem 'rexml'
-gem 'rackup'
 gem 'puma'
+gem 'rackup'
+gem 'rexml'
+gem 'sinatra'
 
 group :test do
   gem 'rack-test'
+end
+
+group :development do
+  gem 'rubocop', '~> 1.77', require: false
 end

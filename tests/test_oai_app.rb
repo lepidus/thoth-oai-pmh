@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 ENV['APP_ENV'] = 'test'
 
-require_relative '../app.rb'
+require_relative '../app'
 require 'test/unit'
 require 'rack/test'
 
+# Test suite for the OAI-PMH application
 class OaiAppTest < Test::Unit::TestCase
   include Rack::Test::Methods
 

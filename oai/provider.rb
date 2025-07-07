@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 require 'oai'
 require_relative 'model'
 
 module ThothOAI
+  # OAI-PMH Provider class
   class Provider < OAI::Provider::Base
     repository_name 'Thoth OAI-PMH Repository'
     repository_url 'http://localhost:4567/oai'
