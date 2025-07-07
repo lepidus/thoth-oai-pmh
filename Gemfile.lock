@@ -4,6 +4,8 @@ GEM
     ast (2.4.3)
     base64 (0.3.0)
     builder (3.3.0)
+    daemons (1.4.1)
+    eventmachine (1.2.7)
     faraday (2.13.2)
       faraday-net_http (>= 2.0, < 3.5)
       json
@@ -16,6 +18,7 @@ GEM
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     logger (1.7.0)
+    multi_json (1.15.0)
     mustermann (3.0.3)
       ruby2_keywords (~> 0.0.1)
     net-http (0.6.0)
@@ -30,6 +33,7 @@ GEM
     parser (3.3.8.0)
       ast (~> 2.4.1)
       racc
+    power_assert (2.0.5)
     prism (1.4.0)
     puma (6.6.0)
       nio4r (~> 2.0)
@@ -47,6 +51,7 @@ GEM
     rackup (2.2.1)
       rack (>= 3)
     rainbow (3.1.1)
+    rake (13.3.0)
     regexp_parser (2.10.0)
     rexml (3.4.1)
     rubocop (1.77.0)
@@ -72,6 +77,19 @@ GEM
       rack-protection (= 4.1.1)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
+    sinatra-contrib (4.1.1)
+      multi_json (>= 0.0.2)
+      mustermann (~> 3.0)
+      rack-protection (= 4.1.1)
+      sinatra (= 4.1.1)
+      tilt (~> 2.0)
+    test-unit (3.7.0)
+      power_assert
+    thin (2.0.1)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0, >= 1.0.4)
+      logger
+      rack (>= 1, < 4)
     tilt (2.6.0)
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
@@ -87,9 +105,13 @@ DEPENDENCIES
   puma
   rack-test
   rackup
+  rake
   rexml
   rubocop (~> 1.77)
   sinatra
+  sinatra-contrib
+  test-unit
+  thin
 
 BUNDLED WITH
    2.6.7
