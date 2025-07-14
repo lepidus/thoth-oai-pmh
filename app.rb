@@ -4,7 +4,7 @@ require_relative 'oai/provider'
 require 'sinatra'
 
 configure do
-  set :oai_provider, ThothOAI::Provider.new
+  set :oai_provider, Thoth::Oai::Provider.new
 end
 
 get '/' do
