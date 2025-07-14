@@ -16,4 +16,5 @@ group :development, :test do
   gem 'rubocop', '~> 1.77', require: false
   gem 'sinatra-contrib'
   gem 'test-unit'
+  gem 'webmock'
 end
