@@ -122,6 +122,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  faraday
   oai
   puma
   rack-test
