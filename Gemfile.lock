@@ -1,9 +1,15 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    addressable (2.8.7)
+      public_suffix (>= 2.0.2, < 7.0)
     ast (2.4.3)
     base64 (0.3.0)
+    bigdecimal (3.2.2)
     builder (3.3.0)
+    crack (1.0.0)
+      bigdecimal
+      rexml
     daemons (1.4.1)
     eventmachine (1.2.7)
     faraday (2.13.2)
@@ -16,6 +22,7 @@ GEM
       net-http (>= 0.5.0)
     ffi (1.17.2)
     ffi (1.17.2-x86_64-linux-gnu)
+    hashdiff (1.2.0)
     json (2.12.2)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
@@ -40,6 +47,7 @@ GEM
       racc
     power_assert (2.0.5)
     prism (1.4.0)
+    public_suffix (6.0.2)
     puma (6.6.0)
       nio4r (~> 2.0)
     racc (1.8.1)
@@ -105,12 +113,16 @@ GEM
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
     uri (1.0.3)
+    webmock (3.25.1)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
-  ruby
   x86_64-linux
 
 DEPENDENCIES
+  faraday
   oai
   puma
   rack-test
@@ -123,6 +135,7 @@ DEPENDENCIES
   sinatra-contrib
   test-unit
   thin
+  webmock
 
 BUNDLED WITH
    2.6.7

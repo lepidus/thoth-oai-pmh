@@ -1,0 +1,6 @@
+AllCops:
+  SuggestExtensions: false
+  NewCops: disable
+
+Metrics/MethodLength:
+  CountAsOne: ['array', 'hash', 'heredoc', 'method_call']

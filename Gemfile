@@ -2,6 +2,7 @@
 
 source 'https://rubygems.org'
 
+gem 'faraday'
 gem 'oai'
 gem 'puma'
 gem 'rackup'
@@ -16,4 +17,5 @@ group :development, :test do
   gem 'rubocop', '~> 1.77', require: false
   gem 'sinatra-contrib'
   gem 'test-unit'
+  gem 'webmock'
 end
