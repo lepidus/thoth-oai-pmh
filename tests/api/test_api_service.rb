@@ -21,7 +21,7 @@ class ThothApiServiceTest < Test::Unit::TestCase
 
     service = Thoth::Api::Service.new
     latest = service.latest
-    assert_equal '2022-05-02T13:37:12.182980Z', latest
+    assert_equal '2025-05-02T13:37:12.182980Z', latest
   end
 
   def test_get_earliest
