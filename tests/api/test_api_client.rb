@@ -11,10 +11,6 @@ require 'webmock/test_unit'
 class ThothClientTest < Test::Unit::TestCase
   include Rack::Test::Methods
 
-  def app
-    Sinatra::Application
-  end
-
   def test_execute_query
     stub_request(:post, 'https://api.thoth.pub/graphql')
       .to_return(
