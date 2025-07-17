@@ -10,26 +10,28 @@ module Thoth
         end
 
         def map
-          {
-            id: "thoth:#{@input['workId']}",
-            identifier: identifiers,
-            title: @input['fullTitle'],
-            creator: creators,
-            contributor: contributors,
-            rights: @input['license'],
-            date: @input['publicationDate'],
-            publisher: publisher,
-            language: languages,
-            type: type,
-            subject: subjects,
-            description: @input['longAbstract'],
-            relation: relations,
-            format: format,
-            updated_at: @input['updatedAtWithRelations']
-          }
+          filter_empty({
+                         id: id,
+                         identifiers: identifiers,
+                         title: title,
+                         creators: creators,
+                         contributors: contributors,
+                         rights: rights,
+                         date: date,
+                         publisher: publisher,
+                         languages: languages,
+                         types: type,
+                         subjects: subjects,
+                         description: description,
+                         relations: relations,
+                         formats: format,
+                         updated_at: updated_at
+                       })
         end
 
-        private
+        def id
+          @input['workId']
+        end
 
         def identifiers
           work_id = "https://thoth.pub/books/#{@input['workId']}"
@@ -40,6 +42,10 @@ module Thoth
           arrayify(work_id) + arrayify(doi) + arrayify(isbns)
         end
 
+        def title
+          @input['fullTitle']
+        end
+
         def creators
           arrayify(@input['creator']&.map { |c| c['fullName'] })
         end
@@ -48,12 +54,20 @@ module Thoth
           arrayify(@input['contributor']&.map { |c| c['fullName'] })
         end
 
+        def rights
+          @input['license']
+        end
+
+        def date
+          @input['publicationDate']
+        end
+
         def publisher
           @input.dig('imprint', 'publisher', 'publisherName')
         end
 
         def languages
-          @input['language'].first&.dig('languageCode').to_s.downcase
+          arrayify(@input['language']&.map { |l| l['languageCode'].downcase })
         end
 
         def type
@@ -70,6 +84,10 @@ module Thoth
 
         def subjects
           @input['keywords']&.map { |k| k['subjectCode'] }
+        end
+
+        def description
+          @input['longAbstract']
         end
 
         def relations
@@ -98,10 +116,18 @@ module Thoth
           end&.compact&.uniq
         end
 
+        def updated_at
+          Time.parse(@input['updatedAtWithRelations']) if @input['updatedAtWithRelations']
+        end
+
         def arrayify(item)
           return [] if item.nil?
 
           Array(item).flatten.compact
+        end
+
+        def filter_empty(data)
+          data.reject { |_k, v| v.nil? || (v.respond_to?(:empty?) && v.empty?) }
         end
       end
     end
