@@ -21,9 +21,13 @@ module Thoth
         @service.latest
       end
 
-      def find(_selector, _options = {})
-        @service.records.map do |record|
-          OpenStruct.new(record)
+      def find(selector, _options = {})
+        case selector
+        when String
+          record = @service.record(selector)
+          OpenStruct.new(record) if record
+        when :all
+          @service.records.map { |record| OpenStruct.new(record) }
         end
       end
     end
