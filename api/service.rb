@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative './client'
+require_relative './queries'
+require_relative '../oai/mapper/oai_dc'
 
 module Thoth
   module Api
@@ -18,22 +20,18 @@ module Thoth
         fetch_datestamp('ASC')
       end
 
+      def records
+        response = @client.execute(Thoth::Api::Queries::WORKS_QUERY)
+        works = JSON.parse(response.body)['data']['works']
+        works.map do |work|
+          Thoth::Oai::Mapper::OaiDc.new(work).map
+        end
+      end
+
       private
 
       def fetch_datestamp(direction)
-        query = <<~GRAPHQL
-          query {
-            works(
-              order: {field: UPDATED_AT_WITH_RELATIONS, direction: #{direction}}
-              workStatuses: [ACTIVE]
-              limit: 1
-            ) {
-              updatedAtWithRelations
-            }
-          }
-        GRAPHQL
-
-        response = @client.execute(query)
+        response = @client.execute(Thoth::Api::Queries::TIMESTAMP_QUERY, { direction: direction })
         JSON.parse(response.body)['data']['works'].first['updatedAtWithRelations']
       end
     end
