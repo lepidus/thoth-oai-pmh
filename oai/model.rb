@@ -2,6 +2,7 @@
 
 require_relative '../api/service'
 require 'oai'
+require 'ostruct'
 
 module Thoth
   module Oai
@@ -21,7 +22,9 @@ module Thoth
       end
 
       def find(_selector, _options = {})
-        []
+        @service.records.map do |record|
+          OpenStruct.new(record)
+        end
       end
     end
   end
