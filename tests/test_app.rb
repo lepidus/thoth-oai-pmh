@@ -5,6 +5,7 @@ ENV['APP_ENV'] = 'test'
 require_relative '../app'
 require 'test/unit'
 require 'rack/test'
+require 'webmock/test_unit'
 
 # Test suite for the OAI-PMH application
 class OaiAppTest < Test::Unit::TestCase
@@ -27,6 +28,12 @@ class OaiAppTest < Test::Unit::TestCase
   end
 
   def test_oai_identify_verb
+    stub_request(:post, 'https://api.thoth.pub/graphql')
+      .to_return(
+        status: 200,
+        body: '{"data": {"works": [{"updatedAtWithRelations": "2020-05-02T13:37:12.182980Z"}]}}',
+        headers: { 'Content-Type' => 'application/json' }
+      )
     get '/oai?verb=Identify'
     assert_equal 200, last_response.status
     assert_includes last_response.body, '<repositoryName>Thoth OAI-PMH Repository</repositoryName>'

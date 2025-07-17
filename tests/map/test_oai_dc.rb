@@ -66,28 +66,28 @@ class DcMapTest < Test::Unit::TestCase
     }
 
     expected_output = {
-      id: 'thoth:4f4a4dcb-2d88-43b6-8400-bd24926903b8',
-      identifier: [
+      id: '4f4a4dcb-2d88-43b6-8400-bd24926903b8',
+      identifiers: [
         'https://thoth.pub/books/4f4a4dcb-2d88-43b6-8400-bd24926903b8',
         'https://doi.org/10.1234/test-doi',
         'info:eu-repo/semantics/altIdentifier/isbn/978-3-123456-123-1'
       ],
       title: 'Test Title',
-      creator: ['John Doe'],
-      contributor: ['Jane Smith'],
+      creators: ['John Doe'],
+      contributors: ['Jane Smith'],
       rights: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
       date: '2021-10-26',
       publisher: 'Thoth Publishers',
-      language: 'eng',
-      type: 'book',
-      subject: ['test'],
+      languages: ['eng'],
+      types: 'book',
+      subjects: ['test'],
       description: 'This is a abstract for the work.',
-      relation: [
+      relations: [
         'https://doi.org/10.12345/related-doi',
         'info:eu-repo/semantics/altIdentifier/isbn/978-1-654321-12-3'
       ],
-      format: ['application/pdf'],
-      updated_at: '2022-05-02T13:37:12.182980Z'
+      formats: ['application/pdf'],
+      updated_at: Time.parse('2022-05-02T13:37:12.182980Z')
     }
 
     assert_equal expected_output, Thoth::Oai::Mapper::OaiDc.new(input).map

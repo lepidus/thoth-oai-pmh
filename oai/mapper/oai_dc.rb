@@ -10,26 +10,24 @@ module Thoth
         end
 
         def map
-          {
-            id: "thoth:#{@input['workId']}",
-            identifier: identifiers,
-            title: @input['fullTitle'],
-            creator: creators,
-            contributor: contributors,
-            rights: @input['license'],
-            date: @input['publicationDate'],
-            publisher: publisher,
-            language: languages,
-            type: type,
-            subject: subjects,
-            description: @input['longAbstract'],
-            relation: relations,
-            format: format,
-            updated_at: @input['updatedAtWithRelations']
-          }
+          filter_empty({
+                         id: @input['workId'],
+                         identifiers: identifiers,
+                         title: @input['fullTitle'],
+                         creators: creators,
+                         contributors: contributors,
+                         rights: @input['license'],
+                         date: @input['publicationDate'],
+                         publisher: publisher,
+                         languages: languages,
+                         types: type,
+                         subjects: subjects,
+                         description: @input['longAbstract'],
+                         relations: relations,
+                         formats: format,
+                         updated_at: updated_at
+                       })
         end
-
-        private
 
         def identifiers
           work_id = "https://thoth.pub/books/#{@input['workId']}"
@@ -53,7 +51,7 @@ module Thoth
         end
 
         def languages
-          @input['language'].first&.dig('languageCode').to_s.downcase
+          arrayify(@input['language']&.map { |l| l['languageCode'].downcase })
         end
 
         def type
@@ -98,10 +96,18 @@ module Thoth
           end&.compact&.uniq
         end
 
+        def updated_at
+          Time.parse(@input['updatedAtWithRelations']) if @input['updatedAtWithRelations']
+        end
+
         def arrayify(item)
           return [] if item.nil?
 
           Array(item).flatten.compact
+        end
+
+        def filter_empty(data)
+          data.reject { |_k, v| v.nil? || (v.respond_to?(:empty?) && v.empty?) }
         end
       end
     end

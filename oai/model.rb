@@ -1,21 +1,34 @@
 # frozen_string_literal: true
 
+require_relative '../api/service'
 require 'oai'
+require 'ostruct'
 
 module Thoth
   module Oai
     # Model class for the OAI-PMH provider
     class Model < OAI::Provider::Model
+      def initialize
+        super
+        @service = Thoth::Api::Service.new
+      end
+
       def earliest
-        '2023-02-13T16:17:44Z'
+        @service.earliest
       end
 
       def latest
-        '2023-04-20T14:45:30Z'
+        @service.latest
       end
 
-      def find(_selector, _options = {})
-        []
+      def find(selector, _options = {})
+        case selector
+        when String
+          record = @service.record(selector)
+          OpenStruct.new(record) if record
+        when :all
+          @service.records.map { |record| OpenStruct.new(record) }
+        end
       end
     end
   end
