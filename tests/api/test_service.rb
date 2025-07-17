@@ -11,6 +11,53 @@ require 'webmock/test_unit'
 class ThothApiServiceTest < Test::Unit::TestCase
   include Rack::Test::Methods
 
+  EXEMPLE_DATA = '{
+    "workId": "4f4a4dcb-2d88-43b6-8400-bd24926903b8",
+    "doi":  "https://doi.org/10.1234/test-doi",
+    "publications": [{"publicationType": "PDF","isbn": "978-3-123456-123-1"}],
+    "fullTitle": "Test Title",
+    "creator": [{"fullName": "John Doe"}],
+    "contributor": [{"fullName": "Jane Smith"}],
+    "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "publicationDate": "2021-10-26",
+    "imprint": {"publisher": {"publisherName": "Thoth Publishers"}},
+    "language": [{"languageCode": "ENG"}],
+    "workType": "BOOK",
+    "keywords": [{"subjectCode": "test"}],
+    "longAbstract": "This is a abstract for the work.",
+    "relations": [{"relatedWork": {
+          "doi": "https://doi.org/10.12345/related-doi",
+          "publications": [{"isbn": "978-1-654321-12-3"}]
+        }
+    }],
+    "updatedAtWithRelations": "2022-05-02T13:37:12.182980Z"
+  }'
+
+  EXPECTED_RECORD = {
+    id: '4f4a4dcb-2d88-43b6-8400-bd24926903b8',
+    identifiers: [
+      'https://thoth.pub/books/4f4a4dcb-2d88-43b6-8400-bd24926903b8',
+      'https://doi.org/10.1234/test-doi',
+      'info:eu-repo/semantics/altIdentifier/isbn/978-3-123456-123-1'
+    ],
+    title: 'Test Title',
+    creators: ['John Doe'],
+    contributors: ['Jane Smith'],
+    rights: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
+    date: '2021-10-26',
+    publisher: 'Thoth Publishers',
+    languages: ['eng'],
+    types: 'book',
+    subjects: ['test'],
+    description: 'This is a abstract for the work.',
+    relations: [
+      'https://doi.org/10.12345/related-doi',
+      'info:eu-repo/semantics/altIdentifier/isbn/978-1-654321-12-3'
+    ],
+    formats: ['application/pdf'],
+    updated_at: Time.parse('2022-05-02T13:37:12.182980Z')
+  }.freeze
+
   def test_get_latest
     stub_request(:post, 'https://api.thoth.pub/graphql')
       .to_return(
@@ -41,55 +88,11 @@ class ThothApiServiceTest < Test::Unit::TestCase
     stub_request(:post, 'https://api.thoth.pub/graphql')
       .to_return(
         status: 200,
-        body: '{"data": {"works": [{
-          "workId": "4f4a4dcb-2d88-43b6-8400-bd24926903b8",
-          "doi":  "https://doi.org/10.1234/test-doi",
-          "publications": [{"publicationType": "PDF","isbn": "978-3-123456-123-1"}],
-          "fullTitle": "Test Title",
-          "creator": [{"fullName": "John Doe"}],
-          "contributor": [{"fullName": "Jane Smith"}],
-          "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
-          "publicationDate": "2021-10-26",
-          "imprint": {"publisher": {"publisherName": "Thoth Publishers"}},
-          "language": [{"languageCode": "ENG"}],
-          "workType": "BOOK",
-          "keywords": [{"subjectCode": "test"}],
-          "longAbstract": "This is a abstract for the work.",
-          "relations": [{"relatedWork": {
-                "doi": "https://doi.org/10.12345/related-doi",
-                "publications": [{"isbn": "978-1-654321-12-3"}]
-              }
-          }],
-          "updatedAtWithRelations": "2022-05-02T13:37:12.182980Z"
-          }]
-        }}',
+        body: "{\"data\": {\"works\": [#{EXEMPLE_DATA}]}}",
         headers: { 'Content-Type' => 'application/json' }
       )
 
-    expected_records = [{
-      id: '4f4a4dcb-2d88-43b6-8400-bd24926903b8',
-      identifiers: [
-        'https://thoth.pub/books/4f4a4dcb-2d88-43b6-8400-bd24926903b8',
-        'https://doi.org/10.1234/test-doi',
-        'info:eu-repo/semantics/altIdentifier/isbn/978-3-123456-123-1'
-      ],
-      title: 'Test Title',
-      creators: ['John Doe'],
-      contributors: ['Jane Smith'],
-      rights: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
-      date: '2021-10-26',
-      publisher: 'Thoth Publishers',
-      languages: ['eng'],
-      types: 'book',
-      subjects: ['test'],
-      description: 'This is a abstract for the work.',
-      relations: [
-        'https://doi.org/10.12345/related-doi',
-        'info:eu-repo/semantics/altIdentifier/isbn/978-1-654321-12-3'
-      ],
-      formats: ['application/pdf'],
-      updated_at: Time.parse('2022-05-02T13:37:12.182980Z')
-    }]
+    expected_records = [EXPECTED_RECORD]
 
     service = Thoth::Api::Service.new
     records = service.records
@@ -100,58 +103,12 @@ class ThothApiServiceTest < Test::Unit::TestCase
     stub_request(:post, 'https://api.thoth.pub/graphql')
       .to_return(
         status: 200,
-        body: '{"data": {"work": {
-          "workId": "4f4a4dcb-2d88-43b6-8400-bd24926903b8",
-          "doi":  "https://doi.org/10.1234/test-doi",
-          "publications": [{"publicationType": "PDF","isbn": "978-3-123456-123-1"}],
-          "fullTitle": "Test Title",
-          "creator": [{"fullName": "John Doe"}],
-          "contributor": [{"fullName": "Jane Smith"}],
-          "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
-          "publicationDate": "2021-10-26",
-          "imprint": {"publisher": {"publisherName": "Thoth Publishers"}},
-          "language": [{"languageCode": "ENG"}],
-          "workType": "BOOK",
-          "keywords": [{"subjectCode": "test"}],
-          "longAbstract": "This is a abstract for the work.",
-          "relations": [{"relatedWork": {
-                "doi": "https://doi.org/10.12345/related-doi",
-                "publications": [{"isbn": "978-1-654321-12-3"}]
-              }
-          }],
-          "updatedAtWithRelations": "2022-05-02T13:37:12.182980Z"
-          }
-        }}',
+        body: "{\"data\": {\"work\":#{EXEMPLE_DATA}}}",
         headers: { 'Content-Type' => 'application/json' }
       )
 
-    expected_record = {
-      id: '4f4a4dcb-2d88-43b6-8400-bd24926903b8',
-      identifiers: [
-        'https://thoth.pub/books/4f4a4dcb-2d88-43b6-8400-bd24926903b8',
-        'https://doi.org/10.1234/test-doi',
-        'info:eu-repo/semantics/altIdentifier/isbn/978-3-123456-123-1'
-      ],
-      title: 'Test Title',
-      creators: ['John Doe'],
-      contributors: ['Jane Smith'],
-      rights: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
-      date: '2021-10-26',
-      publisher: 'Thoth Publishers',
-      languages: ['eng'],
-      types: 'book',
-      subjects: ['test'],
-      description: 'This is a abstract for the work.',
-      relations: [
-        'https://doi.org/10.12345/related-doi',
-        'info:eu-repo/semantics/altIdentifier/isbn/978-1-654321-12-3'
-      ],
-      formats: ['application/pdf'],
-      updated_at: Time.parse('2022-05-02T13:37:12.182980Z')
-    }
-
     service = Thoth::Api::Service.new
     record = service.record('4f4a4dcb-2d88-43b6-8400-bd24926903b8')
-    assert_equal expected_record, record
+    assert_equal EXPECTED_RECORD, record
   end
 end

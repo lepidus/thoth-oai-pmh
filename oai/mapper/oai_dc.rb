@@ -11,26 +11,22 @@ module Thoth
 
         def map
           filter_empty({
-                         id: id,
+                         id: @input['workId'],
                          identifiers: identifiers,
-                         title: title,
+                         title: @input['fullTitle'],
                          creators: creators,
                          contributors: contributors,
-                         rights: rights,
-                         date: date,
+                         rights: @input['license'],
+                         date: @input['publicationDate'],
                          publisher: publisher,
                          languages: languages,
                          types: type,
                          subjects: subjects,
-                         description: description,
+                         description: @input['longAbstract'],
                          relations: relations,
                          formats: format,
                          updated_at: updated_at
                        })
-        end
-
-        def id
-          @input['workId']
         end
 
         def identifiers
@@ -42,24 +38,12 @@ module Thoth
           arrayify(work_id) + arrayify(doi) + arrayify(isbns)
         end
 
-        def title
-          @input['fullTitle']
-        end
-
         def creators
           arrayify(@input['creator']&.map { |c| c['fullName'] })
         end
 
         def contributors
           arrayify(@input['contributor']&.map { |c| c['fullName'] })
-        end
-
-        def rights
-          @input['license']
-        end
-
-        def date
-          @input['publicationDate']
         end
 
         def publisher
@@ -84,10 +68,6 @@ module Thoth
 
         def subjects
           @input['keywords']&.map { |k| k['subjectCode'] }
-        end
-
-        def description
-          @input['longAbstract']
         end
 
         def relations
