@@ -50,6 +50,15 @@ module Thoth
         #{WORK_FIELDS_FRAGMENT}
       GRAPHQL
 
+      WORK_QUERY = <<~GRAPHQL
+        query($workId: Uuid!) {
+          work(workId: $workId) {
+            ...WorkFields
+          }
+        }
+        #{WORK_FIELDS_FRAGMENT}
+      GRAPHQL
+
       TIMESTAMP_QUERY = <<~GRAPHQL
         query($direction: Direction!) {
           works(

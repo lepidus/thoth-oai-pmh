@@ -28,6 +28,12 @@ module Thoth
         end
       end
 
+      def record(work_id)
+        response = @client.execute(Thoth::Api::Queries::WORK_QUERY, { workId: work_id })
+        work = JSON.parse(response.body)['data']['work']
+        Thoth::Oai::Mapper::OaiDc.new(work).map if work
+      end
+
       private
 
       def fetch_datestamp(direction)
