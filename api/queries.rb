@@ -38,11 +38,12 @@ module Thoth
       GRAPHQL
 
       WORKS_QUERY = <<~GRAPHQL
-        query {
+        query($offset: Int!) {
           works(
             order: {field: UPDATED_AT_WITH_RELATIONS, direction: DESC}
             workStatuses: [ACTIVE]
             limit: 100
+            offset: $offset
           ) {
             ...WorkFields
           }
