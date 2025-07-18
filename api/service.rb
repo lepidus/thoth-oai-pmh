@@ -20,8 +20,8 @@ module Thoth
         fetch_datestamp('ASC')
       end
 
-      def records
-        response = @client.execute(Thoth::Api::Queries::WORKS_QUERY)
+      def records(offset = 0)
+        response = @client.execute(Thoth::Api::Queries::WORKS_QUERY, { offset: offset })
         works = JSON.parse(response.body)['data']['works']
         works.map do |work|
           Thoth::Oai::Mapper::OaiDc.new(work).map
