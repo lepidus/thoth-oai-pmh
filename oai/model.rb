@@ -21,13 +21,23 @@ module Thoth
         @service.latest
       end
 
-      def find(selector, _options = {})
-        case selector
-        when String
-          record = @service.record(selector)
-          OpenStruct.new(record) if record
-        when :all
-          @service.records.map { |record| OpenStruct.new(record) }
+      def find(selector, options = {})
+        if selector.is_a?(String)
+          record = @service.find(selector)
+          return OpenStruct.new(record) if record
+        end
+
+        resumption_token = build_resumption_token(options)
+        offset = resumption_token.last || 0
+        records = @service.records(offset).map { |record| OpenStruct.new(record) }
+        OAI::Provider::PartialResult.new(records, resumption_token.next(offset + 1))
+      end
+
+      def build_resumption_token(options)
+        if options[:resumption_token]
+          OAI::Provider::ResumptionToken.parse(options[:resumption_token])
+        else
+          OAI::Provider::ResumptionToken.new(options.merge({ last: 0 }))
         end
       end
     end
