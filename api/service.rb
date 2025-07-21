@@ -20,6 +20,18 @@ module Thoth
         fetch_datestamp('ASC')
       end
 
+      def sets
+        response = @client.execute(Thoth::Api::Queries::PUBLISHERS_QUERY)
+        publishers = JSON.parse(response.body)['data']['publishers']
+        publishers.map do |publisher|
+          {
+            id: publisher['publisherId'],
+            spec: publisher['publisherName'].downcase.gsub(/[^\w\s]/, '').gsub(' ', '-'),
+            name: publisher['publisherName']
+          }
+        end
+      end
+
       def records(offset = 0)
         response = @client.execute(Thoth::Api::Queries::WORKS_QUERY, { offset: offset })
         works = JSON.parse(response.body)['data']['works']

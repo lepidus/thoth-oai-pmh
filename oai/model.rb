@@ -21,6 +21,13 @@ module Thoth
         @service.latest
       end
 
+      def sets
+        sets = @service.sets
+        sets.map do |set|
+          OAI::Set.new({ spec: set[:spec], name: set[:name] })
+        end
+      end
+
       def find(selector, options = {})
         if selector.is_a?(String)
           record = @service.find(selector)

@@ -71,6 +71,15 @@ module Thoth
           }
         }
       GRAPHQL
+
+      PUBLISHERS_QUERY = <<~GRAPHQL
+        query {
+          publishers {
+            publisherId
+            publisherName
+          }
+        }
+      GRAPHQL
     end
   end
 end
