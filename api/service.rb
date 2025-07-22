@@ -20,8 +20,27 @@ module Thoth
         fetch_datestamp('ASC')
       end
 
-      def records(offset = 0)
-        response = @client.execute(Thoth::Api::Queries::WORKS_QUERY, { offset: offset })
+      def sets
+        response = @client.execute(Thoth::Api::Queries::PUBLISHERS_QUERY)
+        publishers = JSON.parse(response.body)['data']['publishers']
+        publishers.map do |publisher|
+          {
+            id: publisher['publisherId'],
+            spec: publisher['publisherName'].downcase.gsub(/[^\w\s]/, '').gsub(' ', '-'),
+            name: publisher['publisherName']
+          }
+        end
+      end
+
+      def total(publisher_id = nil)
+        publishers_id = [publisher_id].compact if publisher_id
+        response = @client.execute(Thoth::Api::Queries::WORK_COUNT_QUERY, { publishersId: publishers_id })
+        JSON.parse(response.body)['data']['workCount']
+      end
+
+      def records(offset = 0, publisher_id = nil)
+        publishers_id = [publisher_id].compact if publisher_id
+        response = @client.execute(Thoth::Api::Queries::WORKS_QUERY, { offset: offset, publishersId: publishers_id })
         works = JSON.parse(response.body)['data']['works']
         works.map do |work|
           Thoth::Oai::Mapper::OaiDc.new(work).map

@@ -38,12 +38,13 @@ module Thoth
       GRAPHQL
 
       WORKS_QUERY = <<~GRAPHQL
-        query($offset: Int!) {
+        query($offset: Int!, $publishersId: [Uuid!]) {
           works(
             order: {field: UPDATED_AT_WITH_RELATIONS, direction: DESC}
             workStatuses: [ACTIVE]
             limit: 100
             offset: $offset
+            publishers: $publishersId
           ) {
             ...WorkFields
           }
@@ -60,6 +61,15 @@ module Thoth
         #{WORK_FIELDS_FRAGMENT}
       GRAPHQL
 
+      WORK_COUNT_QUERY = <<~GRAPHQL
+        query($publishersId: [Uuid!]) {
+          workCount(
+            publishers: $publishersId
+            workStatuses: [ACTIVE]
+          )
+        }
+      GRAPHQL
+
       TIMESTAMP_QUERY = <<~GRAPHQL
         query($direction: Direction!) {
           works(
@@ -68,6 +78,15 @@ module Thoth
             limit: 1
           ) {
             updatedAtWithRelations
+          }
+        }
+      GRAPHQL
+
+      PUBLISHERS_QUERY = <<~GRAPHQL
+        query {
+          publishers {
+            publisherId
+            publisherName
           }
         }
       GRAPHQL
