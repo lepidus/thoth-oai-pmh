@@ -22,30 +22,63 @@ module Thoth
       end
 
       def sets
-        sets = @service.sets
-        sets.map do |set|
-          OAI::Set.new({ spec: set[:spec], name: set[:name] })
-        end
+        @service.sets.map { |set| OAI::Set.new(spec: set[:spec], name: set[:name]) }
       end
 
       def find(selector, options = {})
-        if selector.is_a?(String)
-          record = @service.find(selector)
-          return OpenStruct.new(record) if record
+        if selector == :all
+          find_all(options)
+        else
+          find_one(selector)
         end
+      end
 
-        resumption_token = build_resumption_token(options)
-        offset = resumption_token.last || 0
-        records = @service.records(offset).map { |record| OpenStruct.new(record) }
-        OAI::Provider::PartialResult.new(records, resumption_token.next(offset + 1))
+      private
+
+      def find_one(selector)
+        record = @service.find(selector)
+        record ? OpenStruct.new(record) : nil
+      end
+
+      def find_all(options)
+        token = build_resumption_token(options)
+        publisher_id = publisher_id_from_set(token.set)
+        return nil if token.set && publisher_id.nil?
+
+        records = fetch_records(token.last, publisher_id)
+        create_partial_result(records, token, publisher_id)
+      end
+
+      def fetch_records(offset, publisher_id)
+        @service.records(offset, publisher_id).map { |record| OpenStruct.new(record) }
+      end
+
+      def create_partial_result(records, token, publisher_id)
+        total = @service.total(publisher_id)
+        current_offset = token.last + records.size
+
+        return records if current_offset >= total
+
+        next_token = OAI::Provider::ResumptionToken.parse(token.to_s, nil, total)
+        OAI::Provider::PartialResult.new(records, next_token.next(current_offset))
       end
 
       def build_resumption_token(options)
         if options[:resumption_token]
           OAI::Provider::ResumptionToken.parse(options[:resumption_token])
         else
-          OAI::Provider::ResumptionToken.new(options.merge({ last: 0 }))
+          OAI::Provider::ResumptionToken.new(options.merge(last: 0))
         end
+      end
+
+      def publisher_id_from_set(set_spec)
+        return nil unless set_spec
+
+        publishers_by_spec[set_spec]
+      end
+
+      def publishers_by_spec
+        @publishers_by_spec ||= @service.sets.to_h { |p| [p[:spec], p[:id]] }
       end
     end
   end
