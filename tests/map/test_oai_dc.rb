@@ -2,15 +2,15 @@
 
 ENV['APP_ENV'] = 'test'
 
-require_relative '../../oai/mapper/oai_dc'
+require_relative '../../oai/record'
 require 'test/unit'
 require 'rack/test'
 
 # Test suite for the Thoth GraphQL API client
-class DcMapTest < Test::Unit::TestCase
+class RecordTest < Test::Unit::TestCase
   include Rack::Test::Methods
 
-  def test_map_complete_data
+  def test_record_from_input
     input = {
       'workId' => '4f4a4dcb-2d88-43b6-8400-bd24926903b8',
       'doi' => 'https://doi.org/10.1234/test-doi',
@@ -90,6 +90,6 @@ class DcMapTest < Test::Unit::TestCase
       updated_at: Time.parse('2022-05-02T13:37:12.182980Z')
     }
 
-    assert_equal expected_output, Thoth::Oai::Mapper::OaiDc.new(input).map
+    assert_equal expected_output, Thoth::Oai::Record.new(input).map
   end
 end

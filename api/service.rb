@@ -2,7 +2,7 @@
 
 require_relative './client'
 require_relative './queries'
-require_relative '../oai/mapper/oai_dc'
+require_relative '../oai/record'
 
 module Thoth
   module Api
@@ -43,14 +43,14 @@ module Thoth
         response = @client.execute(Thoth::Api::Queries::WORKS_QUERY, { offset: offset, publishersId: publishers_id })
         works = JSON.parse(response.body)['data']['works']
         works.map do |work|
-          Thoth::Oai::Mapper::OaiDc.new(work).map
+          Thoth::Oai::Record.new(work).map
         end
       end
 
       def record(work_id)
         response = @client.execute(Thoth::Api::Queries::WORK_QUERY, { workId: work_id })
         work = JSON.parse(response.body)['data']['work']
-        Thoth::Oai::Mapper::OaiDc.new(work).map if work
+        Thoth::Oai::Record.new(work).map if work
       end
 
       private
