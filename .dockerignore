@@ -1,6 +1,46 @@
+# Docker files
 .dockerignore
+Dockerfile*
+docker-compose*
+
+# Git
 .git
+.gitignore
 .gitlab-ci.yml
-Dockerfile
+
+# Documentation
 README.md
+*.md
+
+# Tests
 tests/
+spec/
+
+# Development files
+.env.local
+.env.development
+.env.test
+
+# Logs
+*.log
+log/
+
+# Temporary files
+tmp/
+temp/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Ruby specific
+.bundle/
+vendor/bundle/
+.rspec
+.rubocop.yml
