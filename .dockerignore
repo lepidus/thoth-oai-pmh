@@ -1,5 +1,5 @@
 .dockerignore
+.git
 .gitlab-ci.yml
 Dockerfile
 README.md
-tests/
