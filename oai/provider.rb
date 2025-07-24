@@ -8,9 +8,9 @@ module Thoth
     # OAI-PMH Provider class
     class Provider < OAI::Provider::Base
       repository_name 'Thoth OAI-PMH Repository'
-      repository_url 'http://localhost:4567/oai'
+      repository_url 'http://thoth.pub/oai'
       record_prefix 'thoth'
-      admin_email 'admin@example.com'
+      admin_email 'info@thoth.pub'
       source_model Model.new
 
       register_format(OAI::Provider::Metadata::DublinCore.instance)
