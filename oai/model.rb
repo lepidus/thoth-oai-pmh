@@ -36,7 +36,7 @@ module Thoth
       private
 
       def find_one(selector)
-        record = @service.find(selector)
+        record = @service.record(selector)
         record ? OpenStruct.new(record) : nil
       end
 
