@@ -77,7 +77,7 @@ module Thoth
             related_work['publications']&.map do |pub|
               pub['isbn'] ? "info:eu-repo/semantics/altIdentifier/isbn/#{pub['isbn']}" : nil
             end
-          ].compact.flatten
+          ].flatten.compact
         end&.flatten
       end
 
