@@ -43,14 +43,14 @@ module Thoth
         response = @client.execute(Thoth::Api::Queries::WORKS_QUERY, { offset: offset, publishersId: publishers_id })
         works = JSON.parse(response.body)['data']['works']
         works.map do |work|
-          Thoth::Oai::Record.new(work).map
+          Thoth::Oai::Record.new(work)
         end
       end
 
       def record(work_id)
         response = @client.execute(Thoth::Api::Queries::WORK_QUERY, { workId: work_id })
         work = JSON.parse(response.body)['data']['work']
-        Thoth::Oai::Record.new(work).map if work
+        Thoth::Oai::Record.new(work) if work
       end
 
       private

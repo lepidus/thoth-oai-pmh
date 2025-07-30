@@ -2,7 +2,6 @@
 
 require_relative '../api/service'
 require 'oai'
-require 'ostruct'
 
 module Thoth
   module Oai
@@ -36,8 +35,7 @@ module Thoth
       private
 
       def find_one(selector)
-        record = @service.record(selector)
-        record ? OpenStruct.new(record) : nil
+        @service.record(selector)
       end
 
       def find_all(options)
@@ -50,7 +48,7 @@ module Thoth
       end
 
       def fetch_records(offset, publisher_id)
-        @service.records(offset, publisher_id).map { |record| OpenStruct.new(record) }
+        @service.records(offset, publisher_id)
       end
 
       def create_partial_result(records, token, publisher_id)
