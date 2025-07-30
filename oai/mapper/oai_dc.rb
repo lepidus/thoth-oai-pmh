@@ -11,63 +11,60 @@ module Thoth
       class OaiDc
         def initialize(input)
           @input = input
-          @metadata_format = OAI::Provider::Metadata::DublinCore.instance
+          metadata_format = OAI::Provider::Metadata::DublinCore.instance
+          @header_specification = metadata_format.header_specification
+          @fields = metadata_format.fields
         end
 
         def map
-          header_specification = @metadata_format.header_specification
-          fields = @metadata_format.fields
-
           xml = Builder::XmlMarkup.new
-          xml.tag!('oai_dc:dc', header_specification) do
-            fields.each do |field|
-              next unless respond_to?("build_#{field}")
+          xml.tag!('oai_dc:dc', @header_specification) do
+            @fields.each do |field|
+              next unless respond_to?("#{field}_value")
 
-              send("build_#{field}", xml)
+              value = send("#{field}_value")
+
+              next if value.nil? || value.empty?
+
+              value.respond_to?(:each) ? value.each { |v| xml.tag!("dc:#{field}", v) } : xml.tag!("dc:#{field}", value)
             end
           end
           xml.target!
         end
 
-        def build_title(xml)
-          xml.tag! 'dc:title', @input['fullTitle'] if @input.key?('fullTitle')
+        def title_value
+          @input['fullTitle']
         end
 
-        def build_creator(xml)
-          @input['creator'].each do |creator|
-            xml.tag! 'dc:creator', creator['fullName'] if creator.key?('fullName')
-          end
+        def creator_value
+          @input['creator'].map { |creator| creator['fullName'] }.compact
         end
 
-        def build_subject(xml)
-          @input['keywords'].each do |keyword|
-            xml.tag! 'dc:subject', keyword['subjectCode'] if keyword.key?('subjectCode')
-          end
+        def subject_value
+          @input['keywords'].map { |keyword| keyword['subjectCode'] }.compact
         end
 
-        def build_description(xml)
-          xml.tag! 'dc:description', @input['longAbstract'] if @input.key?('longAbstract')
+        def description_value
+          @input['longAbstract']
         end
 
-        def build_publisher(xml)
-          xml.tag! 'dc:publisher', @input['imprint']['publisher']['publisherName'] if @input.key?('imprint')
+        def publisher_value
+          @input['imprint']['publisher']['publisherName']
         end
 
-        def build_contributor(xml)
-          @input['contributor'].each do |contributor|
-            xml.tag! 'dc:contributor', contributor['fullName'] if contributor.key?('fullName')
-          end
+        def contributor_value
+          @input['contributor'].map { |contributor| contributor['fullName'] }.compact
         end
 
-        def build_date(xml)
-          xml.tag! 'dc:date', @input['publicationDate'] if @input.key?('publicationDate')
+        def date_value
+          @input['publicationDate']
         end
 
-        def build_type(xml)
-          xml.tag! 'dc:type', @input['workType'].downcase if @input.key?('workType')
+        def type_value
+          @input['workType'].downcase
         end
 
-        def build_format(xml)
+        def format_value
           types = {
             'HARDBACK' => 'hardback',
             'PAPERBACK' => 'paperback',
@@ -83,45 +80,37 @@ module Thoth
             'FICTION_BOOK' => 'application/x-fictionbook+xml'
           }
 
-          @input['publications'].each do |publication|
+          @input['publications'].map do |publication|
             next unless types.key?(publication['publicationType'])
 
-            xml.tag! 'dc:format', types[publication['publicationType']]
-          end
+            types[publication['publicationType']]
+          end.compact
         end
 
-        def build_identifier(xml)
-          identifiers = ["https://thoth.pub/books/#{@input['workId']}", @input['doi']] +
-                        @input['publications'].map do |pub|
-                          pub['isbn'] ? "urn:isbn:#{pub['isbn']}" : nil
-                        end.compact
-
-          identifiers.each do |identifier|
-            xml.tag! 'dc:identifier', identifier if identifier
-          end
+        def identifier_value
+          ["https://thoth.pub/books/#{@input['workId']}", @input['doi']] +
+            @input['publications'].map do |pub|
+              pub['isbn'] ? "urn:isbn:#{pub['isbn']}" : nil
+            end.compact
         end
 
-        def build_language(xml)
-          @input['language'].each do |lang|
-            xml.tag! 'dc:language', lang['languageCode'].downcase if lang.key?('languageCode')
-          end
+        def language_value
+          @input['language'].map { |lang| lang['languageCode'].downcase }.compact
         end
 
-        def build_relation(xml)
-          relations = @input['relations'].map do |relation|
+        def relation_value
+          @input['relations'].map do |relation|
             [
               relation['relatedWork']['doi'],
-              relation['relatedWork']['publications'].map { |pub| "urn:isbn:#{pub['isbn']}" }
+              relation['relatedWork']['publications'].map do |pub|
+                pub['isbn'] ? "urn:isbn:#{pub['isbn']}" : nil
+              end
             ].flatten.compact
           end.flatten.compact
-
-          relations.each do |relation|
-            xml.tag! 'dc:relation', relation if relation
-          end
         end
 
-        def build_rights(xml)
-          xml.tag! 'dc:rights', @input['license'] if @input.key?('license')
+        def rights_value
+          @input['license']
         end
       end
     end
