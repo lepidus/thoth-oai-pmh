@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'mapper/oai_dc'
+
 module Thoth
   module Oai
     # Thoth OAI-PMH record
@@ -11,11 +13,15 @@ module Thoth
       end
 
       def id
-        @json_record[:id]
+        @json_record['workId']
       end
 
       def updated_at
-        Time.parse(@json_record[:updated_at])
+        Time.parse(@json_record['updatedAtWithRelations'])
+      end
+
+      def to_oai_dc
+        Thoth::Oai::Mapper::OaiDc.new(@json_record).map
       end
     end
   end
