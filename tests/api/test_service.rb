@@ -30,7 +30,7 @@ class ThothApiServiceTest < Test::Unit::TestCase
       'publications' => [{ 'isbn' => '978-1-654321-12-3' }]
     } }],
     'updatedAtWithRelations' => '2022-05-02T13:37:12.182980Z'
-  }
+  }.freeze
 
   def test_get_latest
     stub_request(:post, 'https://api.thoth.pub/graphql')
