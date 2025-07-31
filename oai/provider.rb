@@ -2,6 +2,7 @@
 
 require 'oai'
 require_relative 'model'
+require_relative 'metadata_format/oai_openaire'
 
 module Thoth
   module Oai
@@ -13,6 +14,8 @@ module Thoth
       admin_email 'support@thoth.pub'
       sample_id '5a08ff03-7d53-42a9-bfb5-7fc81c099c52'
       source_model Model.new
+
+      register_format(Thoth::Oai::Metadata::OpenAIRE.instance)
     end
   end
 end
