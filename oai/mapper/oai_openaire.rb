@@ -21,8 +21,21 @@ module Thoth
             @input['creator'].each do |creator|
               xml.tag! 'datacite:creator' do
                 build_creator_name_tag(xml, creator)
-                build_creator_identifier_tag(xml, creator)
-                build_creator_affiliation_tag(xml, creator)
+                build_name_identifier_tag(xml, creator)
+                build_affiliation_tag(xml, creator)
+              end
+            end
+          end
+        end
+
+        def build_contributor_tag(xml)
+          xml.tag! 'datacite:contributors' do
+            @input['contributor'].each do |contributor|
+              contributor_type = contributor['contributionType'] == 'EDITOR' ? 'Editor' : 'Other'
+              xml.tag! 'datacite:contributor', { contributorType: contributor_type } do
+                build_creator_name_tag(xml, contributor)
+                build_name_identifier_tag(xml, contributor)
+                build_affiliation_tag(xml, contributor)
               end
             end
           end
@@ -36,7 +49,7 @@ module Thoth
           xml.tag! 'datacite:familyName', creator['lastName']
         end
 
-        def build_creator_identifier_tag(xml, creator)
+        def build_name_identifier_tag(xml, creator)
           return if creator['contributor']['orcid'].nil?
 
           xml.tag! 'datacite:nameIdentifier', { nameIdentifierScheme: 'ORCID', schemeURI: 'https://orcid.org/' } do
@@ -44,7 +57,7 @@ module Thoth
           end
         end
 
-        def build_creator_affiliation_tag(xml, creator)
+        def build_affiliation_tag(xml, creator)
           creator['affiliations'].each do |affiliation|
             if affiliation['institution']['ror'].nil?
               xml.tag! 'datacite:affiliation', affiliation['institution']['institutionName']
