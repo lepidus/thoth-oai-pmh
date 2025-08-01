@@ -1,6 +1,12 @@
 AllCops:
   SuggestExtensions: false
-  NewCops: disable
+  NewCops: enable
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
 
 Metrics/MethodLength:
-  CountAsOne: ['array', 'hash', 'heredoc', 'method_call']
+  Enabled: false
