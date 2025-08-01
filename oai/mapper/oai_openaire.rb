@@ -41,6 +41,17 @@ module Thoth
           end
         end
 
+        def build_funding_reference_tag(xml)
+          xml.tag! 'oaire:fundingReferences' do
+            @input['fundings'].each do |funding|
+              xml.tag! 'oaire:fundingReference' do
+                build_funder_tag(xml, funding)
+                build_award_tag(xml, funding)
+              end
+            end
+          end
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)
@@ -67,6 +78,18 @@ module Thoth
               end
             end
           end
+        end
+
+        def build_funder_tag(xml, funding)
+          xml.tag! 'oaire:funderName', funding['institution']['institutionName']
+          return if funding['institution']['ror'].nil?
+
+          xml.tag! 'oaire:funderIdentifier', { funderIdentifierType: 'ROR' }, funding['institution']['ror']
+        end
+
+        def build_award_tag(xml, funding)
+          xml.tag! 'oaire:awardNumber', funding['grantNumber'] unless funding['grantNumber'].nil?
+          xml.tag! 'oaire:awardTitle', funding['projectName'] unless funding['projectName'].nil?
         end
       end
     end

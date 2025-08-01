@@ -105,4 +105,33 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
     assert_equal expected_output, mapper.build_contributor_tag(Builder::XmlMarkup.new)
   end
+
+  def test_build_funding_reference_tag
+    input = {
+      'fundings' => [{
+        'institution' => {
+          'institutionName' => 'National Science Foundation',
+          'ror' => 'https://ror.org/03vek6s52'
+        },
+        'grantNumber' => '123456',
+        'projectName' => 'Research Grant'
+      }]
+    }
+
+    expected_output = [
+      '<oaire:fundingReferences>',
+      '<oaire:fundingReference>',
+      '<oaire:funderName>National Science Foundation</oaire:funderName>',
+      '<oaire:funderIdentifier funderIdentifierType="ROR">',
+      'https://ror.org/03vek6s52',
+      '</oaire:funderIdentifier>',
+      '<oaire:awardNumber>123456</oaire:awardNumber>',
+      '<oaire:awardTitle>Research Grant</oaire:awardTitle>',
+      '</oaire:fundingReference>',
+      '</oaire:fundingReferences>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    assert_equal expected_output, mapper.build_funding_reference_tag(Builder::XmlMarkup.new)
+  end
 end
