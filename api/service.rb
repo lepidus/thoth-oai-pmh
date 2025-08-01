@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative './client'
-require_relative './queries'
+require_relative 'client'
+require_relative 'queries'
 require_relative '../oai/record'
 
 module Thoth
