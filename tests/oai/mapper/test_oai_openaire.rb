@@ -161,4 +161,36 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
     assert_equal expected_output, mapper.build_alternate_identifier_tag(Builder::XmlMarkup.new)
   end
+
+  def test_build_related_identifier_tag
+    input = {
+      'relations' => [{
+        'relationType' => 'HAS_CHILD',
+        'relatedWork' => {
+          'doi' => 'https://doi.org/10.1234/related.doi',
+          'landingPage' => 'https://example.com/related-landing-page',
+          'publications' => [{
+            'isbn' => '978-3-16-148410-0'
+          }]
+        }
+      }]
+    }
+
+    expected_output = [
+      '<datacite:relatedIdentifiers>',
+      '<datacite:relatedIdentifier relatedIdentifierType="DOI" relationType="HasPart">',
+      'https://doi.org/10.1234/related.doi',
+      '</datacite:relatedIdentifier>',
+      '<datacite:relatedIdentifier relatedIdentifierType="URL" relationType="HasPart">',
+      'https://example.com/related-landing-page',
+      '</datacite:relatedIdentifier>',
+      '<datacite:relatedIdentifier relatedIdentifierType="ISBN" relationType="HasPart">',
+      '978-3-16-148410-0',
+      '</datacite:relatedIdentifier>',
+      '</datacite:relatedIdentifiers>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    assert_equal expected_output, mapper.build_related_identifier_tag(Builder::XmlMarkup.new)
+  end
 end

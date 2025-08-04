@@ -75,6 +75,28 @@ module Thoth
           end
         end
 
+        def build_related_identifier_tag(xml)
+          xml.tag! 'datacite:relatedIdentifiers' do
+            @input['relations'].each do |relation|
+              relation_type = %w[HAS_CHILD HAS_PART].include?(relation['relationType']) ? 'HasPart' : 'IsPartOf'
+              unless relation['relatedWork']['doi'].nil?
+                xml.tag! 'datacite:relatedIdentifier', { relatedIdentifierType: 'DOI', relationType: relation_type },
+                         relation['relatedWork']['doi']
+              end
+              unless relation['relatedWork']['landingPage'].nil?
+                xml.tag! 'datacite:relatedIdentifier', { relatedIdentifierType: 'URL', relationType: relation_type },
+                         relation['relatedWork']['landingPage']
+              end
+              relation['relatedWork']['publications'].each do |publication|
+                next if publication['isbn'].nil?
+
+                xml.tag! 'datacite:relatedIdentifier', { relatedIdentifierType: 'ISBN', relationType: relation_type },
+                         publication['isbn']
+              end
+            end
+          end
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)
