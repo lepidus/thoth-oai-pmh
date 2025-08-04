@@ -134,4 +134,31 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
     assert_equal expected_output, mapper.build_funding_reference_tag(Builder::XmlMarkup.new)
   end
+
+  def test_builder_alternative_identifier_tag
+    input = {
+      'doi' => '10.1234/example.doi',
+      'landingPage' => 'https://example.com/landing-page',
+      'publications' => [{
+        'isbn' => '978-3-16-148410-0'
+      }]
+    }
+
+    expected_output = [
+      '<datacite:alternateIdentifiers>',
+      '<datacite:alternateIdentifier alternateIdentifierType="DOI">',
+      '10.1234/example.doi',
+      '</datacite:alternateIdentifier>',
+      '<datacite:alternateIdentifier alternateIdentifierType="URL">',
+      'https://example.com/landing-page',
+      '</datacite:alternateIdentifier>',
+      '<datacite:alternateIdentifier alternateIdentifierType="ISBN">',
+      '978-3-16-148410-0',
+      '</datacite:alternateIdentifier>',
+      '</datacite:alternateIdentifiers>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    assert_equal expected_output, mapper.build_alternate_identifier_tag(Builder::XmlMarkup.new)
+  end
 end

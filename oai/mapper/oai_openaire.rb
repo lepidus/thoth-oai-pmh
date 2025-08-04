@@ -45,9 +45,32 @@ module Thoth
           xml.tag! 'oaire:fundingReferences' do
             @input['fundings'].each do |funding|
               xml.tag! 'oaire:fundingReference' do
-                build_funder_tag(xml, funding)
-                build_award_tag(xml, funding)
+                xml.tag! 'oaire:funderName', funding['institution']['institutionName']
+
+                unless funding['institution']['ror'].nil?
+                  xml.tag! 'oaire:funderIdentifier', { funderIdentifierType: 'ROR' },
+                           funding['institution']['ror']
+                end
+
+                xml.tag! 'oaire:awardNumber', funding['grantNumber'] unless funding['grantNumber'].nil?
+                xml.tag! 'oaire:awardTitle', funding['projectName'] unless funding['projectName'].nil?
               end
+            end
+          end
+        end
+
+        def build_alternate_identifier_tag(xml)
+          xml.tag! 'datacite:alternateIdentifiers' do
+            unless @input['doi'].nil?
+              xml.tag! 'datacite:alternateIdentifier', { alternateIdentifierType: 'DOI' }, @input['doi']
+            end
+            unless @input['landingPage'].nil?
+              xml.tag! 'datacite:alternateIdentifier', { alternateIdentifierType: 'URL' }, @input['landingPage']
+            end
+            @input['publications'].each do |publication|
+              next if publication['isbn'].nil?
+
+              xml.tag! 'datacite:alternateIdentifier', { alternateIdentifierType: 'ISBN' }, publication['isbn']
             end
           end
         end
@@ -78,18 +101,6 @@ module Thoth
               end
             end
           end
-        end
-
-        def build_funder_tag(xml, funding)
-          xml.tag! 'oaire:funderName', funding['institution']['institutionName']
-          return if funding['institution']['ror'].nil?
-
-          xml.tag! 'oaire:funderIdentifier', { funderIdentifierType: 'ROR' }, funding['institution']['ror']
-        end
-
-        def build_award_tag(xml, funding)
-          xml.tag! 'oaire:awardNumber', funding['grantNumber'] unless funding['grantNumber'].nil?
-          xml.tag! 'oaire:awardTitle', funding['projectName'] unless funding['projectName'].nil?
         end
       end
     end
