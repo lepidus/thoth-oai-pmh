@@ -158,6 +158,10 @@ module Thoth
           end
         end
 
+        def build_identifier_tag(xml)
+          xml.tag! 'datacite:identifier', { identifierType: 'URL' }, "https://thoth.pub/books/#{@input['workId']}"
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)

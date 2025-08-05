@@ -306,4 +306,21 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_format_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_identifier_tag
+    input = {
+      'workId' => 'e4ab1c2d3-4567-8901-2345-6789abcdef01'
+    }
+
+    expected_output = [
+      '<datacite:identifier identifierType="URL">',
+      'https://thoth.pub/books/e4ab1c2d3-4567-8901-2345-6789abcdef01',
+      '</datacite:identifier>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_identifier_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end
