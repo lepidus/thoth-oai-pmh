@@ -103,6 +103,10 @@ module Thoth
           end
         end
 
+        def build_publisher_tag(xml)
+          xml.tag! 'dc:publisher', @input['imprint']['publisher']['publisherName']
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)

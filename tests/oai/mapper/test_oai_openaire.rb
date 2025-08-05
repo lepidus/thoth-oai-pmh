@@ -216,4 +216,21 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_language_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_publisher_tag
+    input = {
+      'imprint' => {
+        'publisher' => {
+          'publisherName' => 'Sample Publisher'
+        }
+      }
+    }
+
+    expected_output = '<dc:publisher>Sample Publisher</dc:publisher>'
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_publisher_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end
