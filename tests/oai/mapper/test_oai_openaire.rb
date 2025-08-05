@@ -264,4 +264,23 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_resource_type_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_description_tag
+    input = {
+      'shortAbstract' => 'This is a short abstract.',
+      'longAbstract' => 'This is a long abstract.',
+      'toc' => 'This is a Table of Contents.'
+    }
+
+    expected_output = [
+      '<dc:description>This is a short abstract.</dc:description>',
+      '<dc:description>This is a long abstract.</dc:description>',
+      '<dc:description>This is a Table of Contents.</dc:description>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_description_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end

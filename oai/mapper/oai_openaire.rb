@@ -131,6 +131,12 @@ module Thoth
           end
         end
 
+        def build_description_tag(xml)
+          xml.tag! 'dc:description', @input['shortAbstract'] unless @input['shortAbstract'].nil?
+          xml.tag! 'dc:description', @input['longAbstract'] unless @input['longAbstract'].nil?
+          xml.tag! 'dc:description', @input['toc'] unless @input['toc'].nil?
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)
