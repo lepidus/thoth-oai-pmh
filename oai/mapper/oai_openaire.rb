@@ -107,6 +107,10 @@ module Thoth
           xml.tag! 'dc:publisher', @input['imprint']['publisher']['publisherName']
         end
 
+        def build_date_tag(xml)
+          xml.tag! 'datacite:date', { dateType: 'Issued' }, @input['publicationDate']
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)

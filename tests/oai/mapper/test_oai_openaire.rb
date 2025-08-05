@@ -233,4 +233,17 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_publisher_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_date_tag
+    input = {
+      'publicationDate' => '2023-10-01'
+    }
+
+    expected_output = '<datacite:date dateType="Issued">2023-10-01</datacite:date>'
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_date_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end
