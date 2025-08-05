@@ -111,6 +111,26 @@ module Thoth
           xml.tag! 'datacite:date', { dateType: 'Issued' }, @input['publicationDate']
         end
 
+        def build_resource_type_tag(xml)
+          case @input['workType']
+          when 'JOURNAL_ISSUE'
+            xml.tag! 'oaire:resourceType',
+                     { resourceTypeGeneral: 'literature', uri: 'http://purl.org/coar/resource_type/c_0640' } do
+              xml.text! 'journal'
+            end
+          when 'BOOK_CHAPTER'
+            xml.tag! 'oaire:resourceType',
+                     { resourceTypeGeneral: 'literature', uri: 'http://purl.org/coar/resource_type/c_3248' } do
+              xml.text! 'book part'
+            end
+          when 'MONOGRAPH', 'TEXTBOOK', 'EDITED_BOOK', 'BOOK_SET'
+            xml.tag! 'oaire:resourceType',
+                     { resourceTypeGeneral: 'literature', uri: 'http://purl.org/coar/resource_type/c_2f33' } do
+              xml.text! 'book'
+            end
+          end
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)

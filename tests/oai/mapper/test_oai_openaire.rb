@@ -246,4 +246,22 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_date_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_resource_type_tag
+    input = {
+      'workType' => 'MONOGRAPH'
+    }
+
+    expected_output = [
+      '<oaire:resourceType resourceTypeGeneral="literature" ',
+      'uri="http://purl.org/coar/resource_type/c_2f33">',
+      'book',
+      '</oaire:resourceType>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_resource_type_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end
