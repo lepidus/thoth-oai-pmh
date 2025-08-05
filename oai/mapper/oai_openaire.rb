@@ -137,6 +137,27 @@ module Thoth
           xml.tag! 'dc:description', @input['toc'] unless @input['toc'].nil?
         end
 
+        def build_format_tag(xml)
+          types = {
+            'HARDBACK' => 'hardback',
+            'PAPERBACK' => 'paperback',
+            'PDF' => 'application/pdf',
+            'EPUB' => 'application/epub+zip',
+            'XML' => 'application/xml',
+            'HTML' => 'application/html',
+            'DOCX' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'MP3' => 'audio/mpeg',
+            'WAV' => 'audio/wav',
+            'MOBI' => 'application/x-mobipocket-ebook',
+            'AZW3' => 'application/vnd.amazon.ebook',
+            'FICTION_BOOK' => 'application/x-fictionbook+xml'
+          }
+
+          @input['publications'].each do |publication|
+            xml.tag! 'dc:format', types[publication['publicationType']]
+          end
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)

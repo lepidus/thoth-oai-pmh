@@ -283,4 +283,27 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_description_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_format_tag
+    input = {
+      'publications' => [
+        {
+          'publicationType' => 'PDF'
+        },
+        {
+          'publicationType' => 'HTML'
+        }
+      ]
+    }
+
+    expected_output = [
+      '<dc:format>application/pdf</dc:format>',
+      '<dc:format>application/html</dc:format>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_format_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end
