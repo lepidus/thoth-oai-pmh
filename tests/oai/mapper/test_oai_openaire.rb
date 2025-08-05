@@ -193,4 +193,27 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
     assert_equal expected_output, mapper.build_related_identifier_tag(Builder::XmlMarkup.new)
   end
+
+  def test_build_language_tag
+    input = {
+      'languages' => [
+        {
+          'languageCode' => 'eng'
+        },
+        {
+          'languageCode' => 'fra'
+        }
+      ]
+    }
+
+    expected_output = [
+      '<dc:language>eng</dc:language>',
+      '<dc:language>fra</dc:language>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_language_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end

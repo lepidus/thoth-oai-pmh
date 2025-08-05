@@ -97,6 +97,12 @@ module Thoth
           end
         end
 
+        def build_language_tag(xml)
+          @input['languages'].each do |language|
+            xml.tag! 'dc:language', language['languageCode']
+          end
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)
