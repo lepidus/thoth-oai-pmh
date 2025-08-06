@@ -385,4 +385,21 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_subject_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_license_condition_tag
+    input = {
+      'license' => 'http://creativecommons.org/licenses/by/4.0/'
+    }
+
+    expected_output = [
+      '<oaire:licenseCondition uri="http://creativecommons.org/licenses/by/4.0/">',
+      'CC BY 4.0',
+      '</oaire:licenseCondition>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_license_condition_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end
