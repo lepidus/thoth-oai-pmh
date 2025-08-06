@@ -340,4 +340,49 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_rights_tag(xml)
     assert_equal expected_output.join, xml.target!
   end
+
+  def test_build_subject_tag
+    input = {
+      'subjects' => [
+        {
+          'subjectType' => 'BIC',
+          'subjectCode' => 'ACND'
+        },
+        {
+          'subjectType' => 'BISAC',
+          'subjectCode' => 'ART010000'
+        },
+        {
+          'subjectType' => 'THEMA',
+          'subjectCode' => 'AGA'
+        },
+        {
+          'subjectType' => 'LCC',
+          'subjectCode' => 'N7480'
+        },
+        {
+          'subjectType' => 'KEYWORD',
+          'subjectCode' => 'History of art'
+        },
+        {
+          'subjectType' => 'CUSTOM',
+          'subjectCode' => 'Art'
+        }
+      ]
+    }
+
+    expected_output = [
+      '<datacite:subject subjectScheme="BIC">ACND</datacite:subject>',
+      '<datacite:subject subjectScheme="BISAC">ART010000</datacite:subject>',
+      '<datacite:subject subjectScheme="Thema">AGA</datacite:subject>',
+      '<datacite:subject subjectScheme="LCC">N7480</datacite:subject>',
+      '<datacite:subject>History of art</datacite:subject>',
+      '<datacite:subject>Art</datacite:subject>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_subject_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end

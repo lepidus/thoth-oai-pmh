@@ -170,6 +170,17 @@ module Thoth
           end
         end
 
+        def build_subject_tag(xml)
+          @input['subjects'].each do |subject|
+            if %w[KEYWORD CUSTOM].include?(subject['subjectType'])
+              xml.tag! 'datacite:subject', subject['subjectCode']
+            else
+              subject_type = subject['subjectType'] == 'THEMA' ? 'Thema' : subject['subjectType']
+              xml.tag! 'datacite:subject', { subjectScheme: subject_type }, subject['subjectCode']
+            end
+          end
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)
