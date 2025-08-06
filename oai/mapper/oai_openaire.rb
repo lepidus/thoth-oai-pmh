@@ -189,6 +189,20 @@ module Thoth
           end
         end
 
+        def build_size_tag(xml)
+          size_attributes = {
+            'pageCount' => 'pages', 'imageCount' => 'images', 'tableCount' => 'tables',
+            'audioCount' => 'audios', 'videoCount' => 'videos'
+          }
+          sizes = size_attributes.filter_map { |k, v| "#{@input[k]} #{v}" if @input[k] }
+
+          return if sizes.empty?
+
+          xml.tag! 'datacite:sizes' do
+            sizes.each { |s| xml.tag! 'datacite:size', s }
+          end
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)

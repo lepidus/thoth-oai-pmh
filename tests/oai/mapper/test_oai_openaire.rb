@@ -402,4 +402,29 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_license_condition_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_size_tag
+    input = {
+      'pageCount' => 300,
+      'imageCount' => 50,
+      'tableCount' => 10,
+      'audioCount' => 5,
+      'videoCount' => 2
+    }
+
+    expected_output = [
+      '<datacite:sizes>',
+      '<datacite:size>300 pages</datacite:size>',
+      '<datacite:size>50 images</datacite:size>',
+      '<datacite:size>10 tables</datacite:size>',
+      '<datacite:size>5 audios</datacite:size>',
+      '<datacite:size>2 videos</datacite:size>',
+      '</datacite:sizes>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_size_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end
