@@ -162,6 +162,14 @@ module Thoth
           xml.tag! 'datacite:identifier', { identifierType: 'URL' }, "https://thoth.pub/books/#{@input['workId']}"
         end
 
+        def build_rights_tag(xml)
+          if @input['license'].nil?
+            xml.tag! 'datacite:rights', { rightsURI: 'http://purl.org/coar/access_right/c_16ec' }, 'restricted access'
+          else
+            xml.tag! 'datacite:rights', { rightsURI: 'http://purl.org/coar/access_right/c_abf2' }, 'open access'
+          end
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)

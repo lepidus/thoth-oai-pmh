@@ -323,4 +323,21 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_identifier_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_rights_tag
+    input = {
+      'license' => 'http://creativecommons.org/licenses/by/4.0/'
+    }
+
+    expected_output = [
+      '<datacite:rights rightsURI="http://purl.org/coar/access_right/c_abf2">',
+      'open access',
+      '</datacite:rights>'
+    ]
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_rights_tag(xml)
+    assert_equal expected_output.join, xml.target!
+  end
 end
