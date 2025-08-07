@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'mapper/oai_dc'
+require_relative 'mapper/oai_openaire'
 
 module Thoth
   module Oai
@@ -22,6 +23,10 @@ module Thoth
 
       def to_oai_dc
         Thoth::Oai::Mapper::OaiDc.new(@json_record).map
+      end
+
+      def to_oai_openaire
+        Thoth::Oai::Mapper::OaiOpenaire.new(@json_record).map
       end
     end
   end
