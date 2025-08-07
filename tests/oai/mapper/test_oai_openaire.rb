@@ -543,4 +543,22 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_citation_end_page_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_citation_edition_tag
+    input = {
+      'workType' => 'BOOK_CHAPTER',
+      'parentBook' => [{
+        'relatedWork' => {
+          'edition' => '2'
+        }
+      }]
+    }
+
+    expected_output = '<oaire:citationEdition>2</oaire:citationEdition>'
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_citation_edition_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end

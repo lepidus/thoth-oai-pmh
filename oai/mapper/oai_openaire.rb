@@ -227,6 +227,14 @@ module Thoth
           xml.tag! 'oaire:citationEndPage', @input['lastPage']
         end
 
+        def build_citation_edition_tag(xml)
+          parent_book = @input['parentBook']&.first
+
+          return unless parent_book && parent_book['relatedWork']['edition']
+
+          xml.tag! 'oaire:citationEdition', parent_book['relatedWork']['edition']
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)
