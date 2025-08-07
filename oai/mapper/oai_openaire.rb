@@ -221,6 +221,12 @@ module Thoth
           xml.tag! 'oaire:citationStartPage', @input['firstPage']
         end
 
+        def build_citation_end_page_tag(xml)
+          return if @input['lastPage'].nil?
+
+          xml.tag! 'oaire:citationEndPage', @input['lastPage']
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)
