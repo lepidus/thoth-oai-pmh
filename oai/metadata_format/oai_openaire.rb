@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'oai'
+
 module Thoth
   module Oai
     module Metadata

@@ -561,4 +561,208 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_citation_edition_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_map
+    input = {
+      'title' => 'Sample Book Title',
+      'subtitle' => 'Sample Book Subtitle',
+      'creator' => [{
+        'firstName' => 'John',
+        'lastName' => 'Doe',
+        'fullName' => 'John Doe',
+        'contributor' => {
+          'orcid' => '1234-1234-1234-1234'
+        },
+        'affiliations' => [{
+          'institution' => {
+            'institutionName' => 'Harvard University',
+            'ror' => 'https://ror.org/03vek6s52'
+          }
+        }]
+      }],
+      'contributor' => [{
+        'contributionType' => 'EDITOR',
+        'firstName' => 'Jane',
+        'lastName' => 'Smith',
+        'fullName' => 'Jane Smith',
+        'contributor' => {
+          'orcid' => '1234-1234-1234-1234'
+        },
+        'affiliations' => [{
+          'institution' => {
+            'institutionName' => 'Harvard University',
+            'ror' => 'https://ror.org/03vek6s52'
+          }
+        }]
+      }],
+      'fundings' => [{
+        'institution' => {
+          'institutionName' => 'National Science Foundation',
+          'ror' => 'https://ror.org/03vek6s52'
+        },
+        'grantNumber' => '123456',
+        'projectName' => 'Research Grant'
+      }],
+      'doi' => '10.1234/example.doi',
+      'landingPage' => 'https://example.com/landing-page',
+      'publications' => [{
+        'publicationType' => 'PDF',
+        'isbn' => '978-3-16-148410-0',
+        'locations' => [{
+          'fullTextUrl' => 'https://example.com/file.pdf'
+        }]
+      }],
+      'relations' => [{
+        'relationType' => 'HAS_CHILD',
+        'relatedWork' => {
+          'doi' => 'https://doi.org/10.1234/related.doi',
+          'landingPage' => 'https://example.com/related-landing-page',
+          'publications' => [{
+            'isbn' => '978-3-16-148410-0'
+          }]
+        }
+      }],
+      'parentBook' => [],
+      'languages' => [{
+        'languageCode' => 'eng'
+      }],
+      'imprint' => {
+        'publisher' => {
+          'publisherName' => 'Sample Publisher'
+        }
+      },
+      'publicationDate' => '2023-10-01',
+      'workType' => 'MONOGRAPH',
+      'shortAbstract' => 'This is a short abstract.',
+      'longAbstract' => 'This is a long abstract.',
+      'toc' => 'Table of Contents',
+      'workId' => '7c997ab7-5800-49db-8696-f2cab84e43d0',
+      'subjects' => [
+        { 'subjectType' => 'BIC', 'subjectCode' => 'ACND' },
+        { 'subjectType' => 'BISAC', 'subjectCode' => 'ART010000' },
+        { 'subjectType' => 'THEMA', 'subjectCode' => 'AGA' },
+        { 'subjectType' => 'LCC', 'subjectCode' => 'N7480' },
+        { 'subjectType' => 'KEYWORD', 'subjectCode' => 'History of art' },
+        { 'subjectType' => 'CUSTOM', 'subjectCode' => 'Art' }
+      ],
+      'license' => 'http://creativecommons.org/licenses/by-nc-nd/4.0',
+      'pageCount' => 300,
+      'imageCount' => 10,
+      'tableCount' => 5,
+      'audioCount' => 2,
+      'videoCount' => 1,
+      'issue' => [{
+        'issueOrdinal' => '12',
+        'series' => {
+          'seriesName' => 'Series Name'
+        }
+      }],
+      'firstPage' => nil,
+      'lastPage' => nil
+    }
+
+    expected_output = [
+      '<oaire:resource xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" ',
+      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ',
+      'xmlns:dc="http://purl.org/dc/elements/1.1/" ',
+      'xmlns:dcterms="http://purl.org/dc/terms/" ',
+      'xmlns:datacite="http://datacite.org/schema/kernel-4" ',
+      'xmlns:oaire="http://namespace.openaire.eu/schema/oaire/" ',
+      'xsi:schemaLocation="http://namespace.openaire.eu/schema/oaire/ ',
+      'https://www.openaire.eu/schema/repo-lit/4.0/openaire.xsd">',
+      '<datacite:identifier identifierType="URL">',
+      'https://thoth.pub/books/7c997ab7-5800-49db-8696-f2cab84e43d0',
+      '</datacite:identifier>',
+      '<datacite:titles>',
+      '<datacite:title>Sample Book Title</datacite:title>',
+      '<datacite:title titleType="Subtitle">Sample Book Subtitle</datacite:title>',
+      '</datacite:titles>',
+      '<datacite:creators>',
+      '<datacite:creator>',
+      '<datacite:creatorName nameType="Personal">Doe, John</datacite:creatorName>',
+      '<datacite:givenName>John</datacite:givenName>',
+      '<datacite:familyName>Doe</datacite:familyName>',
+      '<datacite:nameIdentifier nameIdentifierScheme="ORCID" schemeURI="https://orcid.org/">',
+      '1234-1234-1234-1234',
+      '</datacite:nameIdentifier>',
+      '<datacite:affiliation affiliationIdentifier="https://ror.org/03vek6s52">',
+      'Harvard University',
+      '</datacite:affiliation>',
+      '</datacite:creator>',
+      '</datacite:creators>',
+      '<datacite:contributors>',
+      '<datacite:contributor contributorType="Editor">',
+      '<datacite:creatorName nameType="Personal">Smith, Jane</datacite:creatorName>',
+      '<datacite:givenName>Jane</datacite:givenName>',
+      '<datacite:familyName>Smith</datacite:familyName>',
+      '<datacite:nameIdentifier nameIdentifierScheme="ORCID" schemeURI="https://orcid.org/">',
+      '1234-1234-1234-1234',
+      '</datacite:nameIdentifier>',
+      '<datacite:affiliation affiliationIdentifier="https://ror.org/03vek6s52">',
+      'Harvard University',
+      '</datacite:affiliation>',
+      '</datacite:contributor>',
+      '</datacite:contributors>',
+      '<oaire:fundingReferences>',
+      '<oaire:fundingReference>',
+      '<oaire:funderName>National Science Foundation</oaire:funderName>',
+      '<oaire:funderIdentifier funderIdentifierType="ROR">https://ror.org/03vek6s52</oaire:funderIdentifier>',
+      '<oaire:awardNumber>123456</oaire:awardNumber>',
+      '<oaire:awardTitle>Research Grant</oaire:awardTitle>',
+      '</oaire:fundingReference>',
+      '</oaire:fundingReferences>',
+      '<datacite:alternateIdentifiers>',
+      '<datacite:alternateIdentifier alternateIdentifierType="DOI">10.1234/example.doi</datacite:alternateIdentifier>',
+      '<datacite:alternateIdentifier alternateIdentifierType="URL">',
+      'https://example.com/landing-page',
+      '</datacite:alternateIdentifier>',
+      '<datacite:alternateIdentifier alternateIdentifierType="ISBN">978-3-16-148410-0</datacite:alternateIdentifier>',
+      '</datacite:alternateIdentifiers>',
+      '<datacite:relatedIdentifiers>',
+      '<datacite:relatedIdentifier relatedIdentifierType="DOI" relationType="HasPart">',
+      'https://doi.org/10.1234/related.doi',
+      '</datacite:relatedIdentifier>',
+      '<datacite:relatedIdentifier relatedIdentifierType="URL" relationType="HasPart">',
+      'https://example.com/related-landing-page',
+      '</datacite:relatedIdentifier>',
+      '<datacite:relatedIdentifier relatedIdentifierType="ISBN" relationType="HasPart">',
+      '978-3-16-148410-0',
+      '</datacite:relatedIdentifier>',
+      '</datacite:relatedIdentifiers>',
+      '<dc:language>eng</dc:language>',
+      '<dc:publisher>Sample Publisher</dc:publisher>',
+      '<datacite:date dateType="Issued">2023-10-01</datacite:date>',
+      '<oaire:resourceType resourceTypeGeneral="literature" uri="http://purl.org/coar/resource_type/c_2f33">',
+      'book',
+      '</oaire:resourceType>',
+      '<dc:description>This is a short abstract.</dc:description>',
+      '<dc:description>This is a long abstract.</dc:description>',
+      '<dc:description>Table of Contents</dc:description>',
+      '<dc:format>application/pdf</dc:format>',
+      '<datacite:rights rightsURI="http://purl.org/coar/access_right/c_abf2">open access</datacite:rights>',
+      '<oaire:licenseCondition uri="http://creativecommons.org/licenses/by-nc-nd/4.0">',
+      'CC BY-NC-ND 4.0',
+      '</oaire:licenseCondition>',
+      '<datacite:subject subjectScheme="BIC">ACND</datacite:subject>',
+      '<datacite:subject subjectScheme="BISAC">ART010000</datacite:subject>',
+      '<datacite:subject subjectScheme="Thema">AGA</datacite:subject>',
+      '<datacite:subject subjectScheme="LCC">N7480</datacite:subject>',
+      '<datacite:subject>History of art</datacite:subject>',
+      '<datacite:subject>Art</datacite:subject>',
+      '<datacite:sizes>',
+      '<datacite:size>300 pages</datacite:size>',
+      '<datacite:size>10 images</datacite:size>',
+      '<datacite:size>5 tables</datacite:size>',
+      '<datacite:size>2 audios</datacite:size>',
+      '<datacite:size>1 videos</datacite:size>',
+      '</datacite:sizes>',
+      '<oaire:file mimeType="application/pdf" objectType="fulltext">https://example.com/file.pdf</oaire:file>',
+      '<oaire:citationTitle>Series Name</oaire:citationTitle>',
+      '<oaire:citationIssue>12</oaire:citationIssue>',
+      '</oaire:resource>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    assert_equal expected_output, mapper.map
+  end
 end

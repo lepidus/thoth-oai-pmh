@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../metadata_format/oai_openaire'
+
 module Thoth
   module Oai
     module Mapper
@@ -7,6 +9,38 @@ module Thoth
       class OaiOpenaire
         def initialize(input)
           @input = input
+          metadata_format = Thoth::Oai::Metadata::OpenAIRE.instance
+          @header_specification = metadata_format.header_specification
+        end
+
+        def map
+          xml = Builder::XmlMarkup.new
+          xml.tag!('oaire:resource', @header_specification) do
+            build_identifier_tag(xml)
+            build_title_tag(xml)
+            build_creator_tag(xml)
+            build_contributor_tag(xml)
+            build_funding_reference_tag(xml)
+            build_alternate_identifier_tag(xml)
+            build_related_identifier_tag(xml)
+            build_language_tag(xml)
+            build_publisher_tag(xml)
+            build_date_tag(xml)
+            build_resource_type_tag(xml)
+            build_description_tag(xml)
+            build_format_tag(xml)
+            build_rights_tag(xml)
+            build_license_condition_tag(xml)
+            build_subject_tag(xml)
+            build_size_tag(xml)
+            build_file_tag(xml)
+            build_citation_title_tag(xml)
+            build_citation_issue_tag(xml)
+            build_citation_start_page_tag(xml)
+            build_citation_end_page_tag(xml)
+            build_citation_edition_tag(xml)
+          end
+          xml.target!
         end
 
         def build_title_tag(xml)
@@ -170,7 +204,8 @@ module Thoth
           return if @input['license'].nil?
 
           xml.tag! 'oaire:licenseCondition', { uri: @input['license'] } do
-            xml.text! cc_license_mapping[@input['license']] || @input['license']
+            license = @input['license'].gsub(%r{/$}, '')
+            xml.text! cc_license_mapping[license] || license
           end
         end
 
@@ -282,19 +317,19 @@ module Thoth
 
         def cc_license_mapping
           {
-            'http://creativecommons.org/publicdomain/zero/1.0/' => 'CC0 1.0 Universal',
-            'http://creativecommons.org/licenses/by/4.0/' => 'CC BY 4.0',
-            'http://creativecommons.org/licenses/by-sa/4.0/' => 'CC BY-SA 4.0',
-            'http://creativecommons.org/licenses/by-nc/4.0/' => 'CC BY-NC 4.0',
-            'http://creativecommons.org/licenses/by-nc-sa/4.0/' => 'CC BY-NC-SA 4.0',
-            'http://creativecommons.org/licenses/by-nd/4.0/' => 'CC BY-ND 4.0',
-            'http://creativecommons.org/licenses/by-nc-nd/4.0/' => 'CC BY-NC-ND 4.0',
-            'http://creativecommons.org/licenses/by/3.0/' => 'CC BY 3.0',
-            'http://creativecommons.org/licenses/by-sa/3.0/' => 'CC BY-SA 3.0',
-            'http://creativecommons.org/licenses/by-nc/3.0/' => 'CC BY-NC 3.0',
-            'http://creativecommons.org/licenses/by-nc-sa/3.0/' => 'CC BY-NC-SA 3.0',
-            'http://creativecommons.org/licenses/by-nd/3.0/' => 'CC BY-ND 3.0',
-            'http://creativecommons.org/licenses/by-nc-nd/3.0/' => 'CC BY-NC-ND 3.0'
+            'http://creativecommons.org/publicdomain/zero/1.0' => 'CC0 1.0 Universal',
+            'http://creativecommons.org/licenses/by/4.0' => 'CC BY 4.0',
+            'http://creativecommons.org/licenses/by-sa/4.0' => 'CC BY-SA 4.0',
+            'http://creativecommons.org/licenses/by-nc/4.0' => 'CC BY-NC 4.0',
+            'http://creativecommons.org/licenses/by-nc-sa/4.0' => 'CC BY-NC-SA 4.0',
+            'http://creativecommons.org/licenses/by-nd/4.0' => 'CC BY-ND 4.0',
+            'http://creativecommons.org/licenses/by-nc-nd/4.0' => 'CC BY-NC-ND 4.0',
+            'http://creativecommons.org/licenses/by/3.0' => 'CC BY 3.0',
+            'http://creativecommons.org/licenses/by-sa/3.0' => 'CC BY-SA 3.0',
+            'http://creativecommons.org/licenses/by-nc/3.0' => 'CC BY-NC 3.0',
+            'http://creativecommons.org/licenses/by-nc-sa/3.0' => 'CC BY-NC-SA 3.0',
+            'http://creativecommons.org/licenses/by-nd/3.0' => 'CC BY-ND 3.0',
+            'http://creativecommons.org/licenses/by-nc-nd/3.0' => 'CC BY-NC-ND 3.0'
           }
         end
       end
