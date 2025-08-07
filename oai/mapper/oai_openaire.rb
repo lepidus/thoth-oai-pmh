@@ -138,23 +138,8 @@ module Thoth
         end
 
         def build_format_tag(xml)
-          types = {
-            'HARDBACK' => 'hardback',
-            'PAPERBACK' => 'paperback',
-            'PDF' => 'application/pdf',
-            'EPUB' => 'application/epub+zip',
-            'XML' => 'application/xml',
-            'HTML' => 'application/html',
-            'DOCX' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'MP3' => 'audio/mpeg',
-            'WAV' => 'audio/wav',
-            'MOBI' => 'application/x-mobipocket-ebook',
-            'AZW3' => 'application/vnd.amazon.ebook',
-            'FICTION_BOOK' => 'application/x-fictionbook+xml'
-          }
-
           @input['publications'].each do |publication|
-            xml.tag! 'dc:format', types[publication['publicationType']]
+            xml.tag! 'dc:format', type_mapping[publication['publicationType']]
           end
         end
 
@@ -203,6 +188,17 @@ module Thoth
           end
         end
 
+        def build_file_tag(xml)
+          @input['publications'].each do |publication|
+            publication['locations'].each do |location|
+              next if location['fullTextUrl'].nil?
+
+              mime_type = type_mapping[publication['publicationType']]
+              xml.tag! 'oaire:file', { mimeType: mime_type, objectType: 'fulltext' }, location['fullTextUrl']
+            end
+          end
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)
@@ -229,6 +225,23 @@ module Thoth
               end
             end
           end
+        end
+
+        def type_mapping
+          {
+            'HARDBACK' => 'hardback',
+            'PAPERBACK' => 'paperback',
+            'PDF' => 'application/pdf',
+            'EPUB' => 'application/epub+zip',
+            'XML' => 'application/xml',
+            'HTML' => 'application/html',
+            'DOCX' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'MP3' => 'audio/mpeg',
+            'WAV' => 'audio/wav',
+            'MOBI' => 'application/x-mobipocket-ebook',
+            'AZW3' => 'application/vnd.amazon.ebook',
+            'FICTION_BOOK' => 'application/x-fictionbook+xml'
+          }
         end
 
         def cc_license_mapping

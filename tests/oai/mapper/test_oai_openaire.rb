@@ -427,4 +427,30 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_size_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_file_tag
+    input = {
+      'publications' => [
+        {
+          'publicationType' => 'PDF',
+          'locations' => [
+            {
+              'fullTextUrl' => 'https://example.com/file.pdf'
+            }
+          ]
+        }
+      ]
+    }
+
+    expected_output = [
+      '<oaire:file mimeType="application/pdf" objectType="fulltext">',
+      'https://example.com/file.pdf',
+      '</oaire:file>'
+    ].join
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_file_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end
