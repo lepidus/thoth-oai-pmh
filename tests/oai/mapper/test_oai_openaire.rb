@@ -497,4 +497,22 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper_chapter.build_citation_title_tag(xml_chapter)
     assert_equal expected_output_chapter, xml_chapter.target!
   end
+
+  def test_build_citation_issue_tag
+    input = {
+      'workType' => 'EDITED_BOOK',
+      'issue' => [
+        {
+          'issueOrdinal' => '12'
+        }
+      ]
+    }
+
+    expected_output = '<oaire:citationIssue>12</oaire:citationIssue>'
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_citation_issue_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end

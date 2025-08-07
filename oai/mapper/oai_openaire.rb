@@ -210,6 +210,11 @@ module Thoth
           xml.tag!('oaire:citationTitle', citation_title) if citation_title
         end
 
+        def build_citation_issue_tag(xml)
+          issue = @input['issue']&.first
+          xml.tag!('oaire:citationIssue', issue['issueOrdinal']) if issue && @input['workType'] != 'BOOK_CHAPTER'
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)
