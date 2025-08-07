@@ -515,4 +515,18 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_citation_issue_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_citation_start_page_tag
+    input = {
+      'firstPage' => '100',
+      'workType' => 'BOOK_CHAPTER'
+    }
+
+    expected_output = '<oaire:citationStartPage>100</oaire:citationStartPage>'
+
+    mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
+    xml = Builder::XmlMarkup.new
+    mapper.build_citation_start_page_tag(xml)
+    assert_equal expected_output, xml.target!
+  end
 end

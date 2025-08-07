@@ -215,6 +215,12 @@ module Thoth
           xml.tag!('oaire:citationIssue', issue['issueOrdinal']) if issue && @input['workType'] != 'BOOK_CHAPTER'
         end
 
+        def build_citation_start_page_tag(xml)
+          return if @input['firstPage'].nil?
+
+          xml.tag! 'oaire:citationStartPage', @input['firstPage']
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)
