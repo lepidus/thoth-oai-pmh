@@ -453,4 +453,48 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     mapper.build_file_tag(xml)
     assert_equal expected_output, xml.target!
   end
+
+  def test_build_citation_title_tag
+    input_book = {
+      'workType' => 'TEXTBOOK',
+      'issue' => [
+        {
+          'series' => {
+            'seriesName' => 'Series Name'
+          }
+        }
+      ]
+    }
+
+    input_chapter = {
+      'workType' => 'BOOK_CHAPTER',
+      'parentBook' => [{
+        'relatedWork' => {
+          'fullTitle' => 'Related Book Title'
+        }
+      }]
+    }
+
+    expected_output_book = [
+      '<oaire:citationTitle>',
+      'Series Name',
+      '</oaire:citationTitle>'
+    ].join
+
+    expected_output_chapter = [
+      '<oaire:citationTitle>',
+      'Related Book Title',
+      '</oaire:citationTitle>'
+    ].join
+
+    mapper_book = Thoth::Oai::Mapper::OaiOpenaire.new(input_book)
+    xml_book = Builder::XmlMarkup.new
+    mapper_book.build_citation_title_tag(xml_book)
+    assert_equal expected_output_book, xml_book.target!
+
+    mapper_chapter = Thoth::Oai::Mapper::OaiOpenaire.new(input_chapter)
+    xml_chapter = Builder::XmlMarkup.new
+    mapper_chapter.build_citation_title_tag(xml_chapter)
+    assert_equal expected_output_chapter, xml_chapter.target!
+  end
 end

@@ -199,6 +199,17 @@ module Thoth
           end
         end
 
+        def build_citation_title_tag(xml)
+          citation_title =
+            if @input['workType'] == 'BOOK_CHAPTER' && (parent_book = @input['parentBook']&.first)
+              parent_book['relatedWork']['fullTitle']
+            elsif (issue = @input['issue']&.first)
+              issue['series']['seriesName']
+            end
+
+          xml.tag!('oaire:citationTitle', citation_title) if citation_title
+        end
+
         private
 
         def build_creator_name_tag(xml, creator)
