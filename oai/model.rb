@@ -39,6 +39,7 @@ module Thoth
       end
 
       def find_all(options)
+        parse_datetime(options)
         token = build_resumption_token(options)
         publisher_id = publisher_id_from_set(token.set)
         return nil if token.set && publisher_id.nil?
@@ -59,6 +60,16 @@ module Thoth
 
         next_token = OAI::Provider::ResumptionToken.parse(token.to_s, nil, total)
         OAI::Provider::PartialResult.new(records, next_token.next(current_offset))
+      end
+
+      def parse_datetime(options)
+        %i[from until].each do |key|
+          next unless options[key]
+
+          datetime = options[key]
+          datetime = datetime.to_time if datetime.is_a?(Date)
+          options[key] = datetime.utc
+        end
       end
 
       def build_resumption_token(options)
