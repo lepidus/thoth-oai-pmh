@@ -21,6 +21,12 @@ module Thoth
         Time.parse(@json_record['updatedAtWithRelations'])
       end
 
+      def sets
+        publisher_name = @json_record.dig('imprint', 'publisher', 'publisherName')
+        spec = publisher_name.downcase.gsub(/[^\w\s]/, '').gsub(' ', '-')
+        OAI::Set.new(spec: spec, name: publisher_name)
+      end
+
       def to_oai_dc
         Thoth::Oai::Mapper::OaiDc.new(@json_record).map
       end
