@@ -1,7 +1,7 @@
 services:
   app:
     build: .
+    container_name: "thoth_oai_pmh"
     ports:
       - "4567:4567"
-    volumes:
-      - .:/app
+    restart: unless-stopped

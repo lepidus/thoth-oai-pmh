@@ -8,6 +8,7 @@ module Thoth
         fragment WorkFields on Work {
           title
     	    subtitle
+          fullTitle
           creator:contributions(contributionTypes:[AUTHOR]) { ...ContributionFields }
           contributor:contributions(contributionTypes:[
             EDITOR,
