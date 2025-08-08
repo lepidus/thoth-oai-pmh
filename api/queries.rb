@@ -90,6 +90,7 @@ module Thoth
           }
         }
         #{WORK_FIELDS_FRAGMENT}
+        #{CONTRIBUTION_FIELDS_FRAGMENT}
       GRAPHQL
 
       WORK_COUNT_QUERY = <<~GRAPHQL
