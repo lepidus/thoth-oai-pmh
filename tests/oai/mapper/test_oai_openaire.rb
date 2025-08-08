@@ -446,7 +446,7 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
       'firstPage' => nil, 'lastPage' => nil
     }
 
-    expected = <<~XML.gsub(/\n\s*/, '')
+    expected = <<~XML.gsub(/\n*/, '')
       <oaire:resource xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/"
        xmlns:dcterms="http://purl.org/dc/terms/"
@@ -543,6 +543,6 @@ class OaiOpenaireMapperTest < Test::Unit::TestCase
     XML
 
     mapper = Thoth::Oai::Mapper::OaiOpenaire.new(input)
-    assert_equal expected, mapper.map.gsub(/>\s+</, '><')
+    assert_equal expected, mapper.map
   end
 end
