@@ -1,113 +1,135 @@
 # frozen_string_literal: true
 
+require 'builder'
+require 'oai'
+require 'json'
+
 module Thoth
   module Oai
     module Mapper
-      # Class for mapping Thoth records to OAI DC format
+      # Maps Thoth records to OAI DC format
       class OaiDc
+        TYPE_MAPPING = {
+          'HARDBACK' => 'hardback',
+          'PAPERBACK' => 'paperback',
+          'PDF' => 'application/pdf',
+          'EPUB' => 'application/epub+zip',
+          'XML' => 'text/xml',
+          'HTML' => 'text/html',
+          'DOCX' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'MP3' => 'audio/mpeg',
+          'WAV' => 'audio/wav',
+          'MOBI' => 'application/x-mobipocket-ebook',
+          'AZW3' => 'application/vnd.amazon.ebook',
+          'FICTION_BOOK' => 'application/x-fictionbook+xml'
+        }.freeze
+
         def initialize(input)
           @input = input
+          metadata_format = OAI::Provider::Metadata::DublinCore.instance
+          @header_specification = metadata_format.header_specification
         end
 
         def map
-          filter_empty({
-                         id: @input['workId'],
-                         identifiers: identifiers,
-                         title: @input['fullTitle'],
-                         creators: creators,
-                         contributors: contributors,
-                         rights: @input['license'],
-                         date: @input['publicationDate'],
-                         publisher: publisher,
-                         languages: languages,
-                         types: type,
-                         subjects: subjects,
-                         description: @input['longAbstract'],
-                         relations: relations,
-                         formats: format,
-                         updated_at: updated_at
-                       })
+          xml = Builder::XmlMarkup.new
+          xml.tag!('oai_dc:dc', @header_specification) do
+            build_tags(xml)
+          end
+          xml.target!
         end
 
-        def identifiers
-          work_id = "https://thoth.pub/books/#{@input['workId']}"
-          doi = @input['doi']
-          isbns = @input['publications'].map do |pub|
-            pub['isbn'] ? "info:eu-repo/semantics/altIdentifier/isbn/#{pub['isbn']}" : nil
-          end.compact
-          arrayify(work_id) + arrayify(doi) + arrayify(isbns)
+        def build_tags(xml)
+          build_title_tag(xml)
+          build_creator_tag(xml)
+          build_subject_tag(xml)
+          build_description_tag(xml)
+          build_publisher_tag(xml)
+          build_contributor_tag(xml)
+          build_date_tag(xml)
+          build_type_tag(xml)
+          build_format_tag(xml)
+          build_identifier_tag(xml)
+          build_language_tag(xml)
+          build_relation_tag(xml)
+          build_rights_tag(xml)
         end
 
-        def creators
-          arrayify(@input['creator']&.map { |c| c['fullName'] })
+        def build_title_tag(xml)
+          xml.tag! 'dc:title', @input['fullTitle']
         end
 
-        def contributors
-          arrayify(@input['contributor']&.map { |c| c['fullName'] })
-        end
-
-        def publisher
-          @input.dig('imprint', 'publisher', 'publisherName')
-        end
-
-        def languages
-          arrayify(@input['language']&.map { |l| l['languageCode'].downcase })
-        end
-
-        def type
-          work_type = @input['workType']&.downcase
-          case work_type
-          when 'journal_article'
-            'issue'
-          when 'book', 'book_set', 'edited_book', 'monograph', 'textbook'
-            'book'
-          when 'book_chapter'
-            'chapter'
+        def build_creator_tag(xml)
+          @input['creator']&.each do |creator|
+            xml.tag! 'dc:creator', creator['fullName']
           end
         end
 
-        def subjects
-          @input['keywords']&.map { |k| k['subjectCode'] }
+        def build_subject_tag(xml)
+          @input['subjects']&.each do |subject|
+            xml.tag! 'dc:subject', subject['subjectCode'] if subject['subjectType'] == 'KEYWORD'
+          end
         end
 
-        def relations
-          @input['relations'].map do |rel|
-            related_work = rel['relatedWork'] || {}
-            [
-              related_work['doi'],
-              related_work['publications']&.map do |pub|
-                pub['isbn'] ? "info:eu-repo/semantics/altIdentifier/isbn/#{pub['isbn']}" : nil
-              end
-            ].compact.flatten
-          end&.flatten
+        def build_description_tag(xml)
+          xml.tag! 'dc:description', @input['longAbstract'] if @input['longAbstract']
         end
 
-        def format
-          types = {
-            'PDF' => 'application/pdf',
-            'EPUB' => 'application/epub+zip',
-            'HTML' => 'text/html',
-            'XML' => 'application/xml'
-          }
-
-          @input['publications']&.map do |pub|
-            pub_type = pub['publicationType']
-            types[pub_type] if types.key?(pub_type)
-          end&.compact&.uniq
+        def build_publisher_tag(xml)
+          publisher = @input.dig('imprint', 'publisher', 'publisherName')
+          xml.tag! 'dc:publisher', publisher if publisher
         end
 
-        def updated_at
-          Time.parse(@input['updatedAtWithRelations']) if @input['updatedAtWithRelations']
+        def build_contributor_tag(xml)
+          @input['contributor']&.each do |contributor|
+            xml.tag! 'dc:contributor', contributor['fullName']
+          end
         end
 
-        def arrayify(item)
-          return [] if item.nil?
-
-          Array(item).flatten.compact
+        def build_date_tag(xml)
+          xml.tag! 'dc:date', @input['publicationDate'] if @input['publicationDate']
         end
 
-        def filter_empty(data)
-          data.reject { |_k, v| v.nil? || (v.respond_to?(:empty?) && v.empty?) }
+        def build_type_tag(xml)
+          type = case @input['workType']
+                 when 'JOURNAL_ISSUE' then 'issue'
+                 when 'BOOK_CHAPTER' then 'chapter'
+                 else 'book'
+                 end
+          xml.tag! 'dc:type', type
+        end
+
+        def build_format_tag(xml)
+          @input['publications']&.each do |format|
+            xml.tag! 'dc:format', TYPE_MAPPING[format['publicationType']]
+          end
+        end
+
+        def build_identifier_tag(xml)
+          xml.tag! 'dc:identifier', "https://thoth.pub/books/#{@input['workId']}"
+          xml.tag! 'dc:identifier', @input['doi'] if @input['doi']
+          @input['publications']&.each do |publication|
+            xml.tag! 'dc:identifier', "urn:isbn:#{publication['isbn']}" if publication['isbn']
+          end
+        end
+
+        def build_language_tag(xml)
+          @input['language']&.each do |lang|
+            xml.tag! 'dc:language', lang['languageCode'].downcase
+          end
+        end
+
+        def build_relation_tag(xml)
+          @input['relations']&.each do |relation|
+            related_work = relation['relatedWork']
+            xml.tag! 'dc:relation', related_work['doi'] if related_work['doi']
+            related_work['publications']&.each do |pub|
+              xml.tag! 'dc:relation', "urn:isbn:#{pub['isbn']}" if pub['isbn']
+            end
+          end
+        end
+
+        def build_rights_tag(xml)
+          xml.tag! 'dc:rights', @input['license'] if @input['license']
         end
       end
     end

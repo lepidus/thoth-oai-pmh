@@ -2,18 +2,20 @@
 
 require 'oai'
 require_relative 'model'
+require_relative 'metadata_format/oai_openaire'
 
 module Thoth
   module Oai
     # OAI-PMH Provider class
     class Provider < OAI::Provider::Base
       repository_name 'Thoth OAI-PMH Repository'
-      repository_url 'http://localhost:4567/oai'
-      record_prefix 'thoth'
-      admin_email 'admin@example.com'
+      repository_url 'https://oai.thoth.pub/'
+      record_prefix 'oai:thoth:pub'
+      admin_email 'support@thoth.pub'
+      sample_id '5a08ff03-7d53-42a9-bfb5-7fc81c099c52'
       source_model Model.new
 
-      register_format(OAI::Provider::Metadata::DublinCore.instance)
+      register_format(Thoth::Oai::Metadata::OpenAIRE.instance)
     end
   end
 end

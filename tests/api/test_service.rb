@@ -11,7 +11,7 @@ require 'webmock/test_unit'
 class ThothApiServiceTest < Test::Unit::TestCase
   include Rack::Test::Methods
 
-  EXEMPLE_DATA = {
+  EXAMPLE_DATA = {
     'workId' => '4f4a4dcb-2d88-43b6-8400-bd24926903b8',
     'doi' => 'https://doi.org/10.1234/test-doi',
     'publications' => [{ 'publicationType' => 'PDF', 'isbn' => '978-3-123456-123-1' }],
@@ -30,31 +30,6 @@ class ThothApiServiceTest < Test::Unit::TestCase
       'publications' => [{ 'isbn' => '978-1-654321-12-3' }]
     } }],
     'updatedAtWithRelations' => '2022-05-02T13:37:12.182980Z'
-  }.to_json
-
-  EXPECTED_RECORD = {
-    id: '4f4a4dcb-2d88-43b6-8400-bd24926903b8',
-    identifiers: [
-      'https://thoth.pub/books/4f4a4dcb-2d88-43b6-8400-bd24926903b8',
-      'https://doi.org/10.1234/test-doi',
-      'info:eu-repo/semantics/altIdentifier/isbn/978-3-123456-123-1'
-    ],
-    title: 'Test Title',
-    creators: ['John Doe'],
-    contributors: ['Jane Smith'],
-    rights: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
-    date: '2021-10-26',
-    publisher: 'Thoth Publishers',
-    languages: ['eng'],
-    types: 'book',
-    subjects: ['test'],
-    description: 'This is a abstract for the work.',
-    relations: [
-      'https://doi.org/10.12345/related-doi',
-      'info:eu-repo/semantics/altIdentifier/isbn/978-1-654321-12-3'
-    ],
-    formats: ['application/pdf'],
-    updated_at: Time.parse('2022-05-02T13:37:12.182980Z')
   }.freeze
 
   def test_get_latest
@@ -67,6 +42,7 @@ class ThothApiServiceTest < Test::Unit::TestCase
 
     service = Thoth::Api::Service.new
     latest = service.latest
+
     assert_equal '2025-05-02T13:37:12.182980Z', latest
   end
 
@@ -80,33 +56,39 @@ class ThothApiServiceTest < Test::Unit::TestCase
 
     service = Thoth::Api::Service.new
     earliest = service.earliest
+
     assert_equal '2020-05-02T13:37:12.182980Z', earliest
-  end
-
-  def test_get_records
-    stub_request(:post, 'https://api.thoth.pub/graphql')
-      .to_return(
-        status: 200,
-        body: "{\"data\": {\"works\": [#{EXEMPLE_DATA}]}}",
-        headers: { 'Content-Type' => 'application/json' }
-      )
-
-    service = Thoth::Api::Service.new
-    records = service.records
-    assert_equal [EXPECTED_RECORD], records
   end
 
   def test_get_record
     stub_request(:post, 'https://api.thoth.pub/graphql')
       .to_return(
         status: 200,
-        body: "{\"data\": {\"work\":#{EXEMPLE_DATA}}}",
+        body: "{\"data\": {\"work\":#{EXAMPLE_DATA.to_json}}}",
         headers: { 'Content-Type' => 'application/json' }
       )
 
     service = Thoth::Api::Service.new
     record = service.record('4f4a4dcb-2d88-43b6-8400-bd24926903b8')
-    assert_equal EXPECTED_RECORD, record
+
+    assert_instance_of Thoth::Oai::Record, record
+    assert_equal EXAMPLE_DATA, record.json_record
+  end
+
+  def test_get_records
+    stub_request(:post, 'https://api.thoth.pub/graphql')
+      .to_return(
+        status: 200,
+        body: "{\"data\": {\"works\": [#{EXAMPLE_DATA.to_json}]}}",
+        headers: { 'Content-Type' => 'application/json' }
+      )
+
+    service = Thoth::Api::Service.new
+    records = service.records
+
+    assert(records.all? { |r| r.instance_of?(Thoth::Oai::Record) })
+    assert_equal 1, records.size
+    assert_equal EXAMPLE_DATA, records.first.json_record
   end
 
   def test_get_sets
@@ -119,6 +101,7 @@ class ThothApiServiceTest < Test::Unit::TestCase
 
     service = Thoth::Api::Service.new
     sets = service.sets
+
     assert_equal [{ id: '1', spec: 'thoth-publishers', name: 'Thoth Publishers' }], sets
   end
 end

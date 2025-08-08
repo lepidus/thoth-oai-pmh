@@ -6,12 +6,12 @@ module Thoth
     class Queries
       WORK_FIELDS_FRAGMENT = <<~GRAPHQL
         fragment WorkFields on Work {
-          workId
-          doi
-          publications { publicationType, isbn }
+          title
+    	    subtitle
           fullTitle
-          creator: contributions(contributionTypes: [AUTHOR, EDITOR]) { fullName }
-          contributor: contributions(contributionTypes: [
+          creator:contributions(contributionTypes:[AUTHOR]) { ...ContributionFields }
+          contributor:contributions(contributionTypes:[
+            EDITOR,
             TRANSLATOR,
             PHOTOGRAPHER,
             ILLUSTRATOR,
@@ -24,16 +24,47 @@ module Thoth
             RESEARCH_BY,
             CONTRIBUTIONS_BY,
             INDEXER
-          ]) { fullName }
-          license
-          publicationDate
+          ]) { ...ContributionFields }
+          fundings { institution { institutionName, ror }, projectName, grantNumber }
+          doi
+          landingPage
+          publications { publicationType, isbn, locations { fullTextUrl } }
+          relations(
+            relationTypes: [HAS_PART, IS_PART_OF, HAS_CHILD, IS_CHILD_OF]
+          ) { relationType, relatedWork { doi, landingPage, publications { isbn } } }
+          parentBook:relations(
+            relationTypes:[IS_CHILD_OF], limit: 1
+          ) { relatedWork { fullTitle, edition } }
+          languages { languageCode }
           imprint { publisher { publisherName } }
-          language: languages { languageCode }
+          publicationDate
           workType
-          keywords: subjects(subjectTypes: [KEYWORD]) { subjectCode}
+          shortAbstract
           longAbstract
-          relations { relatedWork { doi, publications { isbn } } }
+          toc
+          workId
+          subjects { subjectType, subjectCode }
+          license
+          pageCount
+          imageCount
+          tableCount
+          audioCount
+          videoCount
+          issue:issues(limit: 1) { issueOrdinal, series { seriesName } }
+          firstPage
+          lastPage
           updatedAtWithRelations
+        }
+      GRAPHQL
+
+      CONTRIBUTION_FIELDS_FRAGMENT = <<~GRAPHQL
+        fragment ContributionFields on Contribution {
+          contributionType
+          firstName
+          lastName
+          fullName
+          contributor { orcid }
+          affiliations { institution { institutionName, ror } }
         }
       GRAPHQL
 
@@ -50,6 +81,7 @@ module Thoth
           }
         }
         #{WORK_FIELDS_FRAGMENT}
+        #{CONTRIBUTION_FIELDS_FRAGMENT}
       GRAPHQL
 
       WORK_QUERY = <<~GRAPHQL
@@ -59,6 +91,7 @@ module Thoth
           }
         }
         #{WORK_FIELDS_FRAGMENT}
+        #{CONTRIBUTION_FIELDS_FRAGMENT}
       GRAPHQL
 
       WORK_COUNT_QUERY = <<~GRAPHQL

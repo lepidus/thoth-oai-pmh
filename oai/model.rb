@@ -2,7 +2,6 @@
 
 require_relative '../api/service'
 require 'oai'
-require 'ostruct'
 
 module Thoth
   module Oai
@@ -36,11 +35,11 @@ module Thoth
       private
 
       def find_one(selector)
-        record = @service.find(selector)
-        record ? OpenStruct.new(record) : nil
+        @service.record(selector)
       end
 
       def find_all(options)
+        parse_datetime(options)
         token = build_resumption_token(options)
         publisher_id = publisher_id_from_set(token.set)
         return nil if token.set && publisher_id.nil?
@@ -50,7 +49,7 @@ module Thoth
       end
 
       def fetch_records(offset, publisher_id)
-        @service.records(offset, publisher_id).map { |record| OpenStruct.new(record) }
+        @service.records(offset, publisher_id)
       end
 
       def create_partial_result(records, token, publisher_id)
@@ -61,6 +60,16 @@ module Thoth
 
         next_token = OAI::Provider::ResumptionToken.parse(token.to_s, nil, total)
         OAI::Provider::PartialResult.new(records, next_token.next(current_offset))
+      end
+
+      def parse_datetime(options)
+        %i[from until].each do |key|
+          next unless options[key]
+
+          datetime = options[key]
+          datetime = datetime.to_time if datetime.is_a?(Date)
+          options[key] = datetime.utc
+        end
       end
 
       def build_resumption_token(options)

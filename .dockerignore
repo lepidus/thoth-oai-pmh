@@ -1,5 +1,7 @@
 .dockerignore
+.git
 .gitlab-ci.yml
-Dockerfile
+.rubocop.yml
+Dockerfile*
+docker-compose*
 README.md
-tests/
