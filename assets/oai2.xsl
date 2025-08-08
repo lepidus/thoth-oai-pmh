@@ -10,8 +10,8 @@
 
 -->
 
-<!-- 
-  
+<!--
+
 Copyright 2022 University of Southampton.
 
 This file is part of EPrints 3.4 http://www.eprints.org/
@@ -31,9 +31,9 @@ If not, see http://www.gnu.org/licenses/
 
 -->
 
-   
+
 <!--
-  
+
   All the elements really needed for EPrints are done but if
   you want to use this XSL for other OAI archive you may want
   to make some minor changes or additions.
@@ -48,7 +48,7 @@ If not, see http://www.gnu.org/licenses/
 -->
 <xsl:stylesheet
     version="1.0"
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:oai="http://www.openarchives.org/OAI/2.0/"
 >
 
@@ -74,7 +74,7 @@ td.key {
 .dcdata td.key {
 	background-color: #ffffe0;
 }
-body { 
+body {
 	margin: 1em 2em 1em 2em;
 }
 h1, h2, h3 {
@@ -157,12 +157,12 @@ p.intro {
 <xsl:template match="/">
 <html lang="en">
   <head>
-    <title>OAI 2.0 Request Results</title>
+    <title>Thoth OAI 2.0</title>
     <style><xsl:call-template name="style"/></style>
   </head>
   <body>
     <header>
-      <h1>OAI 2.0 Request Results</h1>
+      <h1>Thoth OAI 2.0</h1>
       <nav><xsl:call-template name="quicklinks"/></nav>
       <p class="intro">You are viewing an HTML version of the XML OAI response. To see the underlying XML use your web browsers view source option. More information about this XSLT is at the <a href="#moreinfo">bottom of the page</a>.</p>
     </header>
@@ -178,7 +178,7 @@ p.intro {
 
 <xsl:template name="quicklinks">
     <ul class="quicklinks">
-      <li><a href="?verb=Identify">Identify</a> | </li> 
+      <li><a href="?verb=Identify">Identify</a> | </li>
       <li><a href="?verb=ListRecords&amp;metadataPrefix=oai_dc">ListRecords</a> | </li>
       <li><a href="?verb=ListSets">ListSets</a> | </li>
       <li><a href="?verb=ListMetadataFormats">ListMetadataFormats</a> | </li>
@@ -335,7 +335,7 @@ p.intro {
 </xsl:template>
 
 <xsl:template match="fr:baseURL" xmlns:fr="http://www.openarchives.org/OAI/2.0/friends/">
-  <li><xsl:value-of select="."/> 
+  <li><xsl:value-of select="."/>
 <xsl:text> </xsl:text>
 <a class="link" href="{.}?verb=Identify">Identify</a></li>
 </xsl:template>
@@ -445,15 +445,13 @@ p.intro {
 <!-- ListMetadataFormats -->
 
 <xsl:template match="oai:ListMetadataFormats">
-  <xsl:choose>
-    <xsl:when test="$identifier">
-      <p>This is a list of metadata formats available for the record "<xsl:value-of select='$identifier' />". Use these links to view the metadata: <xsl:apply-templates select="oai:metadataFormat/oai:metadataPrefix" /></p>
-    </xsl:when>
-    <xsl:otherwise>
-      <p>This is a list of metadata formats available from this archive.</p>
-    </xsl:otherwise>
-  </xsl:choose>
-  <xsl:apply-templates select="oai:metadataFormat" />
+<xsl:apply-templates select="/oai:OAI-PMH/oai:request/@identifier"/>
+<div class="ListMetadataFormats">
+  <h2 class="title">ListMetadataFormats</h2>
+  <table class="values">
+  <xsl:apply-templates select="oai:metadataFormat"/>
+  </table>
+</div>
 </xsl:template>
 
 <xsl:template match="oai:metadataFormat">
@@ -468,8 +466,24 @@ p.intro {
   </table>
 </xsl:template>
 
-<xsl:template match="oai:metadataPrefix">
-      <xsl:text> </xsl:text><a class="link" href="?verb=GetRecord&amp;metadataPrefix={.}&amp;identifier={$identifier}"><xsl:value-of select='.' /></a>
+<xsl:template match="/oai:OAI-PMH/oai:ListMetadataFormats/oai:metadataFormat/oai:metadataPrefix">
+    <xsl:param name="identifier" />
+    <xsl:text> </xsl:text><a class="link" href="?verb=GetRecord&amp;metadataPrefix={.}&amp;identifier={$identifier}"><xsl:value-of select="."/></a>
+</xsl:template>
+
+<xsl:template match="/oai:OAI-PMH/oai:request/@identifier">
+  <xsl:choose>
+    <xsl:when test=".">
+      <p>This is a list of metadata formats available for the record "<xsl:value-of select="."/>". Use these links to view the metadata:
+	<xsl:apply-templates select="/oai:OAI-PMH/oai:ListMetadataFormats/oai:metadataFormat/oai:metadataPrefix">
+	    <xsl:with-param name="identifier"><xsl:value-of select="."/></xsl:with-param>
+        </xsl:apply-templates>
+      </p>
+    </xsl:when>
+    <xsl:otherwise>
+      <p>This is a list of metadata formats available from this archive.</p>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <!-- record object -->
@@ -490,6 +504,7 @@ p.intro {
     <td class="value">
       <xsl:value-of select="oai:identifier"/>
       <xsl:text> </xsl:text><a class="link" href="?verb=GetRecord&amp;metadataPrefix=oai_dc&amp;identifier={oai:identifier}">oai_dc</a>
+      <xsl:text> </xsl:text><a class="link" href="?verb=GetRecord&amp;metadataPrefix=oai_openaire&amp;identifier={oai:identifier}">oai_openaire</a>
       <xsl:text> </xsl:text><a class="link" href="?verb=ListMetadataFormats&amp;identifier={oai:identifier}">formats</a>
     </td></tr>
     <tr><td class="key">Datestamp</td>
@@ -555,13 +570,24 @@ p.intro {
   </div>
 </xsl:template>
 
+<!-- oai_openaire record -->
+
+<xsl:template match="oaire:resource" xmlns:oaire="http://namespace.openaire.eu/schema/oaire/" >
+  <div class="openairedata">
+    <h3>OpenAIRE Metadata (oai_openaire)</h3>
+    <table class="xmlSource">
+      <xsl:apply-templates select="." mode='xmlMarkup' />
+    </table>
+  </div>
+</xsl:template>
+
 <!-- oai_dc record -->
 
 <xsl:template match="oai_dc:dc"  xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" >
   <div class="dcdata">
     <h3>Dublin Core Metadata (oai_dc)</h3>
-    <table class="dcdata">
-      <xsl:apply-templates select="*" />
+    <table class="xmlSource">
+      <xsl:apply-templates select="." mode='xmlMarkup' />
     </table>
   </div>
 </xsl:template>
@@ -644,9 +670,10 @@ p.intro {
 
 <xsl:template name="xmlstyle">
 .xmlSource {
-	font-size: 70%;
+	font-family: monospace;
+  line-height: 1.1rem;
 	border: solid #c0c0a0 1px;
-	background-color: #ffffe0;
+	background-color: #fff;
 	padding: 2em 2em 2em 0em;
 }
 .xmlBlock {
