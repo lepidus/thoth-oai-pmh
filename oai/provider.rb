@@ -2,6 +2,7 @@
 
 require 'oai'
 require_relative 'model'
+require_relative 'metadata_format/marcxml'
 require_relative 'metadata_format/oai_openaire'
 
 module Thoth
@@ -16,6 +17,7 @@ module Thoth
       source_model Model.new
 
       register_format(Thoth::Oai::Metadata::OpenAIRE.instance)
+      register_format(Thoth::Oai::Metadata::MarcXML.instance)
     end
   end
 end
