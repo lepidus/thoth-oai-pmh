@@ -20,7 +20,7 @@ class ThothClientTest < Test::Unit::TestCase
       )
 
     client = Thoth::Api::Client.new
-    response = client.execute(query: '{ work(workId: "f8e84405-c554-4375-bd4f-cb56f382adff") { title } }')
+    response = client.execute_query(query: '{ work(workId: "f8e84405-c554-4375-bd4f-cb56f382adff") { title } }')
     assert_equal 200, response.status
     assert_includes response.body, 'Test Work'
   end

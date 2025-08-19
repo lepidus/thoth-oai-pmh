@@ -6,15 +6,12 @@ module Thoth
   module Api
     # Client class for interacting with the Thoth GraphQL API
     class Client
-      def initialize
-        @conn = Faraday.new(
-          url: 'https://api.thoth.pub/graphql',
-          headers: { 'Content-Type' => 'application/json' }
-        )
-      end
+      def execute_query(query, variables = {})
+        uri = 'https://api.thoth.pub/graphql'
+        params = { query: query, variables: variables }.to_json
+        headers = { 'Content-Type' => 'application/json' }
 
-      def execute(query, variables = {})
-        @conn.post('', { query: query, variables: variables }.to_json)
+        Faraday.post(uri, params, headers)
       end
     end
   end
