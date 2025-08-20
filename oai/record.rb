@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'oai'
+require_relative '../api/service'
 require_relative 'mapper/oai_dc'
 require_relative 'mapper/oai_openaire'
 
@@ -33,6 +35,14 @@ module Thoth
 
       def to_oai_openaire
         Thoth::Oai::Mapper::OaiOpenaire.new(@json_record).map
+      end
+
+      def to_marcxml
+        marcxml = Thoth::Api::Service.new.get_marcxml(id)
+
+        raise OAI::FormatException unless marcxml
+
+        marcxml
       end
     end
   end
