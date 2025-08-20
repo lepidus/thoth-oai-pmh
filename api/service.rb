@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rexml/document'
+require 'rexml/xpath'
 require_relative 'client'
 require_relative 'queries'
 require_relative '../oai/record'
@@ -57,6 +59,12 @@ module Thoth
         response = @client.execute_query(Thoth::Api::Queries::WORK_QUERY, { workId: work_id })
         work = JSON.parse(response.body)['data']['work']
         Thoth::Oai::Record.new(work) if work
+      end
+
+      def get_marcxml(work_id)
+        response = @client.send_request('marc21xml::thoth', work_id)
+        doc = REXML::Document.new(response.body)
+        REXML::XPath.first(doc, '//marc:record').to_s
       end
 
       private
