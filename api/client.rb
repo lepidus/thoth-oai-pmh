@@ -13,6 +13,13 @@ module Thoth
 
         Faraday.post(uri, params, headers)
       end
+
+      def send_request(specification_id, work_id)
+        uri = "https://export.thoth.pub/specifications/#{specification_id}/work/#{work_id}"
+        headers = { 'Content-Type' => 'text/xml' }
+
+        Faraday.get(uri, nil, headers)
+      end
     end
   end
 end
