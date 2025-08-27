@@ -44,12 +44,15 @@ module Thoth
         publisher_id = publisher_id_from_set(token.set)
         return nil if token.set && publisher_id.nil?
 
-        records = fetch_records(token.last, publisher_id)
+        prefix = token.prefix
+        type = prefix == 'marcxml' ? 'books' : 'works'
+
+        records = fetch_records(token.last, publisher_id, type)
         create_partial_result(records, token, publisher_id)
       end
 
-      def fetch_records(offset, publisher_id)
-        @service.records(offset, publisher_id)
+      def fetch_records(offset, publisher_id, type)
+        @service.records(offset, publisher_id, type)
       end
 
       def create_partial_result(records, token, publisher_id)

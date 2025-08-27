@@ -40,19 +40,18 @@ module Thoth
         JSON.parse(response.body)['data']['workCount']
       end
 
-      def records(offset = 0, publisher_id = nil)
+      def records(offset = 0, publisher_id = nil, type = 'works')
         publishers_id = [publisher_id].compact if publisher_id
 
-        response = @client.execute_query(
-          Thoth::Api::Queries::WORKS_QUERY,
-          { offset: offset, publishersId: publishers_id }
-        )
+        query = type == 'works' ? Thoth::Api::Queries::WORKS_QUERY : Thoth::Api::Queries::BOOKS_QUERY
 
-        works = JSON.parse(response.body)['data']['works']
+        response = @client.execute_query(query, { offset: offset, publishersId: publishers_id })
 
-        works.map do |work|
-          Thoth::Oai::Record.new(work)
-        end
+        works = JSON.parse(response.body)['data'][type]
+
+        works = filter_works(works) if type == 'books'
+
+        works.map { |work| Thoth::Oai::Record.new(work) }
       end
 
       def record(work_id)
@@ -62,8 +61,10 @@ module Thoth
       end
 
       def get_marcxml(work_id)
-        response = @client.send_request('marc21xml::thoth', work_id)
-        doc = REXML::Document.new(response.body)
+        xml = @client.send_request('marc21xml::thoth', work_id)
+        return unless xml
+
+        doc = REXML::Document.new(xml)
         REXML::XPath.first(doc, '//marc:record').to_s
       end
 
@@ -72,6 +73,16 @@ module Thoth
       def fetch_datestamp(direction)
         response = @client.execute_query(Thoth::Api::Queries::TIMESTAMP_QUERY, { direction: direction })
         JSON.parse(response.body)['data']['works'].first['updatedAtWithRelations']
+      end
+
+      def filter_works(works)
+        works = works.reject { |work| work['contributions'].empty? }
+        works = works.reject do |work|
+          work['languages'].none? { |language| language['mainLanguage'] }
+        end
+        works.reject do |work|
+          work['publications'].none? { |publication| publication['isbn'] }
+        end
       end
     end
   end
