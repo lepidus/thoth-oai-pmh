@@ -505,6 +505,7 @@ p.intro {
       <xsl:value-of select="oai:identifier"/>
       <xsl:text> </xsl:text><a class="link" href="?verb=GetRecord&amp;metadataPrefix=oai_dc&amp;identifier={oai:identifier}">oai_dc</a>
       <xsl:text> </xsl:text><a class="link" href="?verb=GetRecord&amp;metadataPrefix=oai_openaire&amp;identifier={oai:identifier}">oai_openaire</a>
+      <xsl:text> </xsl:text><a class="link" href="?verb=GetRecord&amp;metadataPrefix=marcxml&amp;identifier={oai:identifier}">marcxml</a>
       <xsl:text> </xsl:text><a class="link" href="?verb=ListMetadataFormats&amp;identifier={oai:identifier}">formats</a>
     </td></tr>
     <tr><td class="key">Datestamp</td>
@@ -567,6 +568,17 @@ p.intro {
   <h3>Unknown Metadata Format</h3>
   <div class="xmlSource">
     <xsl:apply-templates select="." mode='xmlMarkup' />
+  </div>
+</xsl:template>
+
+<!-- oai_openaire record -->
+
+<xsl:template match="marc:record" xmlns:marc="http://www.loc.gov/MARC21/slim" >
+  <div class="marcxmldata">
+    <h3>MARC21 (marcxml)</h3>
+    <table class="xmlSource">
+      <xsl:apply-templates select="." mode='xmlMarkup' />
+    </table>
   </div>
 </xsl:template>
 
