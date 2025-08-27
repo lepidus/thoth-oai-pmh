@@ -18,7 +18,11 @@ module Thoth
         uri = "https://export.thoth.pub/specifications/#{specification_id}/work/#{work_id}"
         headers = { 'Content-Type' => 'text/xml' }
 
-        Faraday.get(uri, nil, headers)
+        response = Faraday.get(uri, nil, headers)
+
+        return response.body if response.status == 200
+
+        puts "Application Error: #{response.status} - #{response.body}"
       end
     end
   end
