@@ -68,12 +68,31 @@ module Thoth
         }
       GRAPHQL
 
+      BOOKS_QUERY = <<~GRAPHQL
+        query($offset: Int!, $publishersId: [Uuid!]) {
+          books(
+            order: {field: UPDATED_AT_WITH_RELATIONS, direction: DESC}
+            workStatuses: [ACTIVE]
+            limit: 50
+            offset: $offset
+            publishers: $publishersId
+          ) {
+            workId
+            imprint { publisher { publisherName } }
+            publications { isbn }
+            contributions { fullName }
+            languages { mainLanguage }
+            updatedAtWithRelations
+          }
+        }
+      GRAPHQL
+
       WORKS_QUERY = <<~GRAPHQL
         query($offset: Int!, $publishersId: [Uuid!]) {
           works(
             order: {field: UPDATED_AT_WITH_RELATIONS, direction: DESC}
             workStatuses: [ACTIVE]
-            limit: 100
+            limit: 50
             offset: $offset
             publishers: $publishersId
           ) {

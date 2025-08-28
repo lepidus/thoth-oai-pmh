@@ -6,15 +6,28 @@ module Thoth
   module Api
     # Client class for interacting with the Thoth GraphQL API
     class Client
-      def initialize
-        @conn = Faraday.new(
-          url: 'https://api.thoth.pub/graphql',
-          headers: { 'Content-Type' => 'application/json' }
-        )
+      def execute_query(query, variables = {})
+        uri = 'https://api.thoth.pub/graphql'
+        params = { query: query, variables: variables }.to_json
+        headers = { 'Content-Type' => 'application/json' }
+
+        response = Faraday.post(uri, params, headers)
+
+        return JSON.parse(response.body) if response.status == 200
+
+        errors = JSON.parse(response.body)['errors'].map { |e| e['message'] }.join(', ')
+        puts "Application Error: #{response.status} - #{errors}"
       end
 
-      def execute(query, variables = {})
-        @conn.post('', { query: query, variables: variables }.to_json)
+      def send_request(specification_id, work_id)
+        uri = "https://export.thoth.pub/specifications/#{specification_id}/work/#{work_id}"
+        headers = { 'Content-Type' => 'text/xml' }
+
+        response = Faraday.get(uri, nil, headers)
+
+        return response.body if response.status == 200
+
+        puts "Application Error: #{response.status} - #{response.body}"
       end
     end
   end
