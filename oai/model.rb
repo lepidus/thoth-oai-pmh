@@ -7,6 +7,8 @@ module Thoth
   module Oai
     # Model class for the OAI-PMH provider
     class Model < OAI::Provider::Model
+      LIMIT = 50
+
       def initialize
         super
         @service = Thoth::Api::Service.new
@@ -47,12 +49,14 @@ module Thoth
         prefix = token.prefix
         type = prefix == 'marcxml' ? 'books' : 'works'
 
-        records = fetch_records(token.last, publisher_id, type)
+        records = @service.records(token.last, LIMIT, publisher_id, type)
+        while records.size < LIMIT
+          limit = LIMIT - records.size
+          offset = token.last + limit
+          records.concat(@service.records(offset, limit, publisher_id, type))
+          token.next(offset)
+        end
         create_partial_result(records, token, publisher_id)
-      end
-
-      def fetch_records(offset, publisher_id, type)
-        @service.records(offset, publisher_id, type)
       end
 
       def create_partial_result(records, token, publisher_id)
