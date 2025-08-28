@@ -84,7 +84,7 @@ class ThothApiServiceTest < Test::Unit::TestCase
       )
 
     service = Thoth::Api::Service.new
-    records = service.records
+    records = service.records(0, 50)
 
     assert(records.all? { |r| r.instance_of?(Thoth::Oai::Record) })
     assert_equal 1, records.size
