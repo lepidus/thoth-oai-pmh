@@ -11,7 +11,12 @@ module Thoth
         params = { query: query, variables: variables }.to_json
         headers = { 'Content-Type' => 'application/json' }
 
-        Faraday.post(uri, params, headers)
+        response = Faraday.post(uri, params, headers)
+
+        return JSON.parse(response.body) if response.status == 200
+
+        errors = JSON.parse(response.body)['errors'].map { |e| e['message'] }.join(', ')
+        puts "Application Error: #{response.status} - #{errors}"
       end
 
       def send_request(specification_id, work_id)

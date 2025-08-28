@@ -23,40 +23,33 @@ module Thoth
       end
 
       def sets
-        response = @client.execute_query(Thoth::Api::Queries::PUBLISHERS_QUERY)
-        publishers = JSON.parse(response.body)['data']['publishers']
-        publishers.map do |publisher|
-          {
-            id: publisher['publisherId'],
-            spec: publisher['publisherName'].downcase.gsub(/[^\w\s]/, '').gsub(' ', '-'),
-            name: publisher['publisherName']
-          }
-        end
+        result = @client.execute_query(Thoth::Api::Queries::PUBLISHERS_QUERY)
+        return [] unless result
+
+        result.dig('data', 'publishers').map { |publisher| create_set(publisher) }
       end
 
       def total(publisher_id = nil)
-        publishers_id = [publisher_id].compact if publisher_id
-        response = @client.execute_query(Thoth::Api::Queries::WORK_COUNT_QUERY, { publishersId: publishers_id })
-        JSON.parse(response.body)['data']['workCount']
+        publishers_id = publisher_id ? [publisher_id] : nil
+        result = @client.execute_query(Thoth::Api::Queries::WORK_COUNT_QUERY, { publishersId: publishers_id })
+        result&.dig('data', 'workCount')
       end
 
       def records(offset = 0, publisher_id = nil, type = 'works')
-        publishers_id = [publisher_id].compact if publisher_id
-
+        publishers_id = publisher_id ? [publisher_id] : nil
         query = type == 'works' ? Thoth::Api::Queries::WORKS_QUERY : Thoth::Api::Queries::BOOKS_QUERY
 
-        response = @client.execute_query(query, { offset: offset, publishersId: publishers_id })
+        result = @client.execute_query(query, { offset: offset, publishersId: publishers_id })
+        return [] unless result
 
-        works = JSON.parse(response.body)['data'][type]
-
+        works = result.dig('data', type) || []
         works = filter_works(works) if type == 'books'
-
         works.map { |work| Thoth::Oai::Record.new(work) }
       end
 
       def record(work_id)
-        response = @client.execute_query(Thoth::Api::Queries::WORK_QUERY, { workId: work_id })
-        work = JSON.parse(response.body)['data']['work']
+        result = @client.execute_query(Thoth::Api::Queries::WORK_QUERY, { workId: work_id })
+        work = result&.dig('data', 'work')
         Thoth::Oai::Record.new(work) if work
       end
 
@@ -65,23 +58,29 @@ module Thoth
         return unless xml
 
         doc = REXML::Document.new(xml)
-        REXML::XPath.first(doc, '//marc:record').to_s
+        REXML::XPath.first(doc, '//marc:record')&.to_s
       end
 
       private
 
       def fetch_datestamp(direction)
-        response = @client.execute_query(Thoth::Api::Queries::TIMESTAMP_QUERY, { direction: direction })
-        JSON.parse(response.body)['data']['works'].first['updatedAtWithRelations']
+        result = @client.execute_query(Thoth::Api::Queries::TIMESTAMP_QUERY, { direction: direction })
+        result&.dig('data', 'works', 0, 'updatedAtWithRelations')
+      end
+
+      def create_set(publisher)
+        {
+          id: publisher['publisherId'],
+          spec: publisher['publisherName'].downcase.gsub(/[^\w\s]/, '').gsub(' ', '-'),
+          name: publisher['publisherName']
+        }
       end
 
       def filter_works(works)
-        works = works.reject { |work| work['contributions'].empty? }
-        works = works.reject do |work|
-          work['languages'].none? { |language| language['mainLanguage'] }
-        end
-        works.reject do |work|
-          work['publications'].none? { |publication| publication['isbn'] }
+        works.select do |work|
+          work['contributions'].any? &&
+            work['languages'].any? { |lang| lang['mainLanguage'] } &&
+            work['publications'].any? { |pub| pub['isbn'] }
         end
       end
     end
