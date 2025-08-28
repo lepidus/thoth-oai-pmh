@@ -35,11 +35,11 @@ module Thoth
         result&.dig('data', 'workCount')
       end
 
-      def records(offset = 0, publisher_id = nil, type = 'works')
+      def records(offset, limit, publisher_id = nil, type = 'works')
         publishers_id = publisher_id ? [publisher_id] : nil
         query = type == 'works' ? Thoth::Api::Queries::WORKS_QUERY : Thoth::Api::Queries::BOOKS_QUERY
 
-        result = @client.execute_query(query, { offset: offset, publishersId: publishers_id })
+        result = @client.execute_query(query, { offset: offset, publishersId: publishers_id, limit: limit })
         return [] unless result
 
         works = result.dig('data', type) || []

@@ -17,4 +17,4 @@ RUN rm -rf tests/ Rakefile
 
 EXPOSE 4567
 
-CMD ["rerun", "ruby", "app.rb", "--background", "--", "-o", "0.0.0.0"]
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

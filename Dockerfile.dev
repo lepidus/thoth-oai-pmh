@@ -15,4 +15,4 @@ COPY . .
 
 EXPOSE 4567
 
-CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
+CMD ["rerun", "ruby", "app.rb", "--background", "--", "-o", "0.0.0.0"]
