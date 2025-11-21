@@ -38,10 +38,10 @@ class OaiAppTest < Test::Unit::TestCase
     assert_equal 200, last_response.status
     assert_includes last_response.body, '<repositoryName>Thoth OAI-PMH Repository</repositoryName>'
     assert_includes last_response.body, '<scheme>oai</scheme>' \
-                                        '<repositoryIdentifier>thoth:pub</repositoryIdentifier>' \
+                                        '<repositoryIdentifier>thoth.pub</repositoryIdentifier>' \
                                         '<delimiter>:</delimiter>' \
                                         '<sampleIdentifier>' \
-                                        'oai:thoth:pub:5a08ff03-7d53-42a9-bfb5-7fc81c099c52' \
+                                        'oai:thoth.pub:5a08ff03-7d53-42a9-bfb5-7fc81c099c52' \
                                         '</sampleIdentifier>' \
                                         '</oai-identifier></description>'
   end

@@ -2,41 +2,40 @@
 
 OAI-PMH (Open Archives Initiative Protocol for Metadata Harvesting) server for Thoth Open Metadata.
 
-## Installation
+## Getting Started
 
-Install the dependencies:
+### Running with Docker (Development)
 
-```bash
+```
+docker compose -f docker-compose.dev.yml build
+docker compose -f docker-compose.dev.yml up
+```
+
+### Running with Docker (Production)
+
+```
+docker compose build
+docker compose up
+```
+
+### Running with Ruby (Development)
+
+```
 bundle install
-```
-
-And run with:
-
-```bash
-ruby app.rb
-```
-
-View at: <http://localhost:4567>
-
-## Development
-
-Run with rerun code reloader:
-
-```bash
 rerun ruby app.rb
 ```
 
-Or build and run docker image:
+### Running with Ruby (Production)
 
-```bash
-docker build -t thoth_oai_pmh .
-docker run --name thoth_oai_pmh -p 4567:4567 thoth_oai_pmh
+```
+bundle install
+bundle exec puma -C config/puma.rb
 ```
 
 ## Testing
 
 Run tests with Rake:
 
-```bash
+```
 bundle exec rake
 ```
